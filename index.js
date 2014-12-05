@@ -29,6 +29,11 @@ try {
 /*
  * functions
  */
+function error() {
+
+  return;
+}
+
 function makeDir(path, next) {
 
   fs.stat(path, function(err, stats) {
@@ -160,12 +165,21 @@ function wrapper(my) {
 
   client.connect(my.uri, function(err, db) {
 
+    var root = my.tar === null ? my.root : my.dir;
     // waiting for `db.fsyncLock()` on node driver
-    makeDir(my.root + db.databaseName + '/', function(err, name) {
+    makeDir(root + db.databaseName + '/', function(err, name) {
 
       discriminator(db, name, parser, function() {
 
         db.close();
+        if (my.tar !== null) {
+          var dest = fs.createWriteStream(my.tar);
+          var packer = require('tar').Pack().on('error', error);
+          require('fstream').Reader({
+            path: root,
+            type: 'Directory'
+          }).on('error', error).pipe(packer).pipe(dest);
+        }
         if (my.callback !== null) {
           my.callback();
         }
@@ -183,12 +197,13 @@ function backup(options) {
     throw new Error('missing root option');
   }
   var my = {
-    dir: __dirname,
+    dir: __dirname + '/dump/',
     uri: String(opt.uri),
     root: resolve(String(opt.root)) + '/',
     parser: String(opt.parser || 'bson'),
     collections: Array.isArray(opt.collections) ? opt.collections : null,
-    callback: typeof (opt.callback) == 'function' ? opt.callback : null
+    callback: typeof (opt.callback) == 'function' ? opt.callback : null,
+    tar: typeof opt.tar === 'string' ? opt.tar : null
   };
   return wrapper(my);
 }
