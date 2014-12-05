@@ -1,7 +1,7 @@
 {
   "version": "0.0.0",
   "name": "mongodb-backup",
-  "description": "mongodb backup",
+  "description": "backup for mongodb",
   "keywords": [
     "mongodb",
     "backup"
@@ -24,7 +24,10 @@
   "main": "index.min.js",
   "dependencies": {
     "bson": "0.2.15",
-    "mongodb": "1.4.22"
+    "fstream": "1.0.3",
+    "mongodb": "1.4.22",
+    "rmdir": "1.0.4",
+    "tar": "1.0.3"
   },
   "devDependencies": {
     "mocha": "~2.0",
