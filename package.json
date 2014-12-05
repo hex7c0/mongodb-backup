@@ -1,0 +1,45 @@
+{
+  "version": "0.0.0",
+  "name": "mongodb-backup",
+  "description": "mongodb backup",
+  "keywords": [
+    "mongodb",
+    "backup"
+  ],
+  "preferGlobal": false,
+  "homepage": "http://supergiovane.tk/#/mongodb-backup",
+  "author": {
+    "name": "hex7c0",
+    "email": "hex7c0@gmail.com",
+    "url": "http://hex7c0.tk/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hex7c0/mongodb-backup.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hex7c0/mongodb-backup/issues",
+    "email": "hex7c0@gmail.com"
+  },
+  "main": "index.min.js",
+  "dependencies": {
+    "bson": "0.2.15",
+    "mongodb": "1.4.22"
+  },
+  "devDependencies": {
+    "mocha": "~2.0",
+    "grunt-contrib-clean": "~0.6",
+    "grunt-contrib-uglify": "~0.6",
+    "grunt-contrib-jshint": "~0.10",
+    "grunt-endline": "~0.2",
+    "supertest": "~0.15"
+  },
+  "engines": {
+    "node": "^0.10"
+  },
+  "scripts": {
+    "prepublish": "npm prune",
+    "test": "mocha --bail --check-leaks test/"
+  },
+  "license": "GPLv3"
+}
