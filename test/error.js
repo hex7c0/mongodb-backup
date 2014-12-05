@@ -28,7 +28,7 @@ describe('error', function() {
 
   it('should return missing uri', function(done) {
 
-    var mex = 'missing uri options';
+    var mex = 'missing uri option';
     try {
       monitode();
     } catch (e) {
@@ -50,10 +50,24 @@ describe('error', function() {
   });
   it('should return missing root', function(done) {
 
-    var mex = 'missing root options';
+    var mex = 'missing root option';
     try {
       monitode({
         uri: 'ciao'
+      });
+    } catch (e) {
+      assert.equal(e.message, mex);
+    }
+    done();
+  });
+  it('should return parser root', function(done) {
+
+    var mex = 'missing parser option';
+    try {
+      monitode({
+        uri: 'ciao',
+        root: 'ciao',
+        parser: 'ciao'
       });
     } catch (e) {
       assert.equal(e.message, mex);
