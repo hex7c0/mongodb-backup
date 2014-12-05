@@ -43,7 +43,7 @@ function makeDir(path, next) {
     } else if (stats !== undefined && stats.isDirectory() === false) {
       fs.unlink(path, function() {
 
-        fs.mkdir(path, next(new Error('path was a file'), path));
+        fs.mkdir(path, next(error(new Error('path was a file')), path));
       });
     } else {
       next(null, path);
@@ -90,7 +90,7 @@ function allCollections(db, name, parser, next) {
   db.collections(function(err, collections) {
 
     if (err !== null) {
-      return;
+      return error(err);
     }
     var last = collections.length - 1;
     collections.forEach(function(collection, index) {
@@ -100,7 +100,7 @@ function allCollections(db, name, parser, next) {
         collection.find().toArray(function(err, docs) {
 
           if (err !== null) {
-            return;
+            return error(err);
           }
           parser(name, docs, function() {
 
@@ -122,14 +122,14 @@ function someCollections(db, name, parser, next, collections) {
     db.collection(collection, function(err, collection) {
 
       if (err !== null) {
-        return;
+        return error(err);
       }
       makeDir(name + collection.collectionName + '/', function(err, name) {
 
         collection.find().toArray(function(err, docs) {
 
           if (err !== null) {
-            return;
+            return error(err);
           }
           parser(name, docs, function() {
 
@@ -165,6 +165,9 @@ function wrapper(my) {
 
   client.connect(my.uri, function(err, db) {
 
+    if (err !== null) {
+      return error(err);
+    }
     var root = my.tar === null ? my.root : my.dir;
     // waiting for `db.fsyncLock()` on node driver
     makeDir(root + db.databaseName + '/', function(err, name) {
