@@ -29,11 +29,25 @@ try {
 /*
  * functions
  */
-function error() {
+/**
+ * error handler
+ * 
+ * @todo write logger
+ * @function error
+ * @param {Object} err - raised error
+ */
+function error(err) {
 
-  return;
+  return err;
 }
 
+/**
+ * make dir
+ * 
+ * @function makeDir
+ * @param {String} path - path of dir
+ * @param {Function} next - callback
+ */
 function makeDir(path, next) {
 
   fs.stat(path, function(err, stats) {
@@ -51,6 +65,14 @@ function makeDir(path, next) {
   });
 }
 
+/**
+ * JSON parser
+ * 
+ * @function toJson
+ * @param {String} name - path of file
+ * @param {Array} docs - documents from query
+ * @param {Function} next - callback
+ */
 function toJson(name, docs, next) {
 
   var last = docs.length - 1;
@@ -68,6 +90,14 @@ function toJson(name, docs, next) {
   });
 }
 
+/**
+ * BSON parser
+ * 
+ * @function toBson
+ * @param {String} name - path of file
+ * @param {Array} docs - documents from query
+ * @param {Function} next - callback
+ */
 function toBson(name, docs, next) {
 
   var last = docs.length - 1;
@@ -85,6 +115,15 @@ function toBson(name, docs, next) {
   });
 }
 
+/**
+ * get data from all collections available
+ * 
+ * @function allCollections
+ * @param {Object} db - database
+ * @param {String} name - path of dir
+ * @param {Function} parser - data parser
+ * @param {Function} next - callback
+ */
 function allCollections(db, name, parser, next) {
 
   db.collections(function(err, collections) {
@@ -114,6 +153,16 @@ function allCollections(db, name, parser, next) {
   });
 }
 
+/**
+ * get data from some collections
+ * 
+ * @function someCollections
+ * @param {Object} db - database
+ * @param {String} name - path of dir
+ * @param {Function} parser - data parser
+ * @param {Function} next - callback
+ * @param {Array} collections - selected collections
+ */
 function someCollections(db, name, parser, next, collections) {
 
   var last = collections.length - 1;
@@ -143,6 +192,12 @@ function someCollections(db, name, parser, next, collections) {
   });
 }
 
+/**
+ * function wrapper
+ * 
+ * @function wrapper
+ * @param {Object} my - parsed options
+ */
 function wrapper(my) {
 
   var parser;
@@ -191,6 +246,14 @@ function wrapper(my) {
   });
 }
 
+/**
+ * option setting
+ * 
+ * @exports backup
+ * @function backup
+ * @param {Object} options - various options. Check README.md
+ * @return {Function}
+ */
 function backup(options) {
 
   var opt = options || Object.create(null);
