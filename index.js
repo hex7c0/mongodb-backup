@@ -140,10 +140,18 @@ function someCollections(db, name, parser, next, collections) {
 
 function wrapper(my) {
 
-  var parser = toJson;
-  if (my.parser === 'bson') {
-    BSON = require('bson').BSONPure.BSON;
-    parser = toBson;
+  var parser;
+  switch (my.parser) {
+    case 'bson':
+      BSON = require('bson').BSONPure.BSON;
+      parser = toBson;
+      break;
+    case 'json':
+      // JSON error on id and Date
+      parser = toJson;
+      break;
+    default:
+      throw new Error('missing parser option');
   }
   var discriminator = allCollections;
   if (my.collections !== null) {
@@ -170,15 +178,15 @@ function backup(options) {
 
   var opt = options || Object.create(null);
   if (!opt.uri) {
-    throw new Error('missing uri options');
+    throw new Error('missing uri option');
   } else if (!opt.root) {
-    throw new Error('missing root options');
+    throw new Error('missing root option');
   }
   var my = {
     dir: __dirname,
     uri: String(opt.uri),
     root: resolve(String(opt.root)) + '/',
-    parser: String(opt.parser || 'json'),
+    parser: String(opt.parser || 'bson'),
     collections: Array.isArray(opt.collections) ? opt.collections : null,
     callback: typeof (opt.callback) == 'function' ? opt.callback : null
   };
