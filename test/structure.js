@@ -1,6 +1,6 @@
 'use strict';
 /**
- * @file simple test
+ * @file structure test
  * @module mongodb-backup
  * @package mongodb-backup
  * @subpackage test
@@ -27,7 +27,7 @@ try {
 /*
  * test module
  */
-describe('simple', function() {
+describe('structure', function() {
 
   var ROOT = __dirname + '/dump';
   this.timeout(10000);
@@ -40,6 +40,7 @@ describe('simple', function() {
         uri: URI,
         root: ROOT,
         collections: [ 'logins' ],
+        parser: 'json',
         callback: function() {
 
           fs.readdirSync(ROOT).forEach(function(first) { // database
@@ -107,6 +108,7 @@ describe('simple', function() {
       monitode({
         uri: URI,
         root: ROOT,
+        parser: 'json',
         callback: function() {
 
           fs.readdirSync(ROOT).forEach(function(first) { // database
