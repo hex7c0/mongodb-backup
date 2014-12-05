@@ -52,9 +52,11 @@ function toJson(name, docs, next) {
   docs.forEach(function(doc, index) {
 
     // no async. EMFILE error
-    fs.writeFileSync(name + doc._id + '.json', JSON.stringify(doc), {
-      encoding: 'utf8'
-    });
+    if (doc._id !== undefined) {
+      fs.writeFileSync(name + doc._id + '.json', JSON.stringify(doc), {
+        encoding: 'utf8'
+      });
+    }
     if (last === index) {
       next();
     }
@@ -67,9 +69,11 @@ function toBson(name, docs, next) {
   docs.forEach(function(doc, index) {
 
     // no async. EMFILE error
-    fs.writeFileSync(name + doc._id + '.bson', BSON.serialize(doc), {
-      encoding: null
-    });
+    if (doc._id !== undefined) {
+      fs.writeFileSync(name + doc._id + '.bson', BSON.serialize(doc), {
+        encoding: null
+      });
+    }
     if (last === index) {
       next();
     }
@@ -142,7 +146,7 @@ function wrapper(my) {
     parser = toBson;
   }
   var discriminator = allCollections;
-  if (Array.isArray(my.collections) === true) {
+  if (my.collections !== null) {
     discriminator = someCollections;
   }
 
@@ -154,6 +158,9 @@ function wrapper(my) {
       discriminator(db, name, parser, function() {
 
         db.close();
+        if (my.callback !== null) {
+          my.callback();
+        }
       }, my.collections);
     });
   });
@@ -172,7 +179,8 @@ function backup(options) {
     uri: String(opt.uri),
     root: resolve(String(opt.root)) + '/',
     parser: String(opt.parser || 'json'),
-    collections: opt.collections || null
+    collections: Array.isArray(opt.collections) ? opt.collections : null,
+    callback: typeof (opt.callback) == 'function' ? opt.callback : null
   };
   return wrapper(my);
 }
