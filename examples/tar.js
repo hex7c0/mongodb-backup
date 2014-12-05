@@ -1,6 +1,6 @@
 'use strict';
 /**
- * @file login example
+ * @file tar example
  * @module mongodb-backup
  * @package mongodb-backup
  * @subpackage examples
@@ -21,5 +21,6 @@ var backup = require('..'); // use require('mongodb-backup') instead
 backup({
   uri: 'uri', // mongodb://<dbuser>:<dbpassword>@<dbdomain>.mongolab.com:<dbport>/<dbdatabase>
   root: __dirname,
-  collections: [ 'logins' ]
+  collections: [ 'logins' ],
+  tar: 'dump.tar'
 });
