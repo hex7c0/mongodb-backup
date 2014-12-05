@@ -170,7 +170,7 @@ function backup(options) {
   var my = {
     dir: __dirname,
     uri: String(opt.uri),
-    root: resolve(String(opt.root)),
+    root: resolve(String(opt.root)) + '/',
     parser: String(opt.parser || 'json'),
     collections: opt.collections || false
   };
