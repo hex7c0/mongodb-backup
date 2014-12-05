@@ -172,7 +172,7 @@ function backup(options) {
     uri: String(opt.uri),
     root: resolve(String(opt.root)) + '/',
     parser: String(opt.parser || 'json'),
-    collections: opt.collections || false
+    collections: opt.collections || null
   };
   return wrapper(my);
 }
