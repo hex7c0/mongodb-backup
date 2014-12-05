@@ -101,6 +101,7 @@ describe('structure', function() {
       });
     });
   });
+
   describe('parser', function() {
 
     it('should build any directories (*.json)', function(done) {
@@ -164,6 +165,31 @@ describe('structure', function() {
           done();
         }
       });
+    });
+  });
+
+  describe('tar', function() {
+
+    it('should make a tar file', function(done) {
+
+      monitode({
+        uri: URI,
+        root: ROOT,
+        tar: 't1.tar',
+        callback: function() {
+
+          assert.equal(fs.existsSync(ROOT + '/t1.tar'), true);
+          fs.unlink(ROOT + '/t1.tar', function() {
+
+            done();
+          });
+        }
+      });
+    });
+    it('should check that buffer dir not exist', function(done) {
+
+      assert.equal(fs.existsSync(__dirname + '/../dump'), false);
+      done();
     });
   });
 });

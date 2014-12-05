@@ -233,14 +233,17 @@ function wrapper(my) {
 
           db.close();
           if (my.tar !== null) {
-            var dest = fs.createWriteStream(my.tar);
+            var dest = fs.createWriteStream(my.root + my.tar);
             var packer = require('tar').Pack().on('error', error);
             require('fstream').Reader({
               path: root,
               type: 'Directory'
             }).on('error', error).pipe(packer).pipe(dest);
-            require('rmdir')(root, function() {
+            return require('rmdir')(root, function() {
 
+              if (my.callback !== null) {
+                my.callback();
+              }
               return;
             });
           }
