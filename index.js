@@ -224,24 +224,31 @@ function wrapper(my) {
       return error(err);
     }
     var root = my.tar === null ? my.root : my.dir;
-    // waiting for `db.fsyncLock()` on node driver
-    makeDir(root + db.databaseName + '/', function(err, name) {
+    makeDir(root, function(err, name) {
 
-      discriminator(db, name, parser, function() {
+      // waiting for `db.fsyncLock()` on node driver
+      makeDir(name + db.databaseName + '/', function(err, name) {
 
-        db.close();
-        if (my.tar !== null) {
-          var dest = fs.createWriteStream(my.tar);
-          var packer = require('tar').Pack().on('error', error);
-          require('fstream').Reader({
-            path: root,
-            type: 'Directory'
-          }).on('error', error).pipe(packer).pipe(dest);
-        }
-        if (my.callback !== null) {
-          my.callback();
-        }
-      }, my.collections);
+        discriminator(db, name, parser, function() {
+
+          db.close();
+          if (my.tar !== null) {
+            var dest = fs.createWriteStream(my.tar);
+            var packer = require('tar').Pack().on('error', error);
+            require('fstream').Reader({
+              path: root,
+              type: 'Directory'
+            }).on('error', error).pipe(packer).pipe(dest);
+            require('rmdir')(root, function() {
+
+              return;
+            });
+          }
+          if (my.callback !== null) {
+            my.callback();
+          }
+        }, my.collections);
+      });
     });
   });
 }
@@ -252,7 +259,6 @@ function wrapper(my) {
  * @exports backup
  * @function backup
  * @param {Object} options - various options. Check README.md
- * @return {Function}
  */
 function backup(options) {
 
