@@ -114,6 +114,9 @@ function rmDir(path, next) {
 function toJson(name, docs, next) {
 
   var last = docs.length - 1;
+  if (last < 0) {
+    return next();
+  }
   docs.forEach(function(doc, index) {
 
     // no async. EMFILE error
@@ -139,6 +142,9 @@ function toJson(name, docs, next) {
 function toBson(name, docs, next) {
 
   var last = docs.length - 1;
+  if (last < 0) {
+    return next();
+  }
   docs.forEach(function(doc, index) {
 
     // no async. EMFILE error
@@ -171,6 +177,9 @@ function allCollections(db, name, query, parser, next) {
       return error(err);
     }
     var last = collections.length - 1;
+    if (last < 0) {
+      return next();
+    }
     collections.forEach(function(collection, index) {
 
       logger('select collection ' + collection.collectionName);
@@ -207,6 +216,9 @@ function allCollections(db, name, query, parser, next) {
 function someCollections(db, name, query, parser, next, collections) {
 
   var last = collections.length - 1;
+  if (last < 0) {
+    return next();
+  }
   collections.forEach(function(collection, index) {
 
     db.collection(collection, function(err, collection) {
