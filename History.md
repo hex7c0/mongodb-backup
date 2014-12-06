@@ -1,6 +1,7 @@
-0.0.1 / unreleased
+0.0.2 / 2014-12-06
 ==================
 
+  * Logger integration
   * Add "query" (options)
 
 0.0.1 / 2014-12-05
