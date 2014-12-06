@@ -70,7 +70,7 @@ function makeDir(path, next) {
  * 
  * @function rmDir
  * @param {String} path - path of dir
- * @param {Function} next - callback
+ * @param {Function} [next] - callback
  */
 function rmDir(path, next) {
 
@@ -156,10 +156,11 @@ function toBson(name, docs, next) {
  * @function allCollections
  * @param {Object} db - database
  * @param {String} name - path of dir
+ * @param {Object} query - find query
  * @param {Function} parser - data parser
  * @param {Function} next - callback
  */
-function allCollections(db, name, parser, next) {
+function allCollections(db, name, query, parser, next) {
 
   db.collections(function(err, collections) {
 
@@ -171,7 +172,7 @@ function allCollections(db, name, parser, next) {
 
       makeDir(name + collection.collectionName + '/', function(err, name) {
 
-        collection.find().toArray(function(err, docs) {
+        collection.find(query).toArray(function(err, docs) {
 
           if (err !== null) {
             return error(err);
@@ -194,11 +195,12 @@ function allCollections(db, name, parser, next) {
  * @function someCollections
  * @param {Object} db - database
  * @param {String} name - path of dir
+ * @param {Object} query - find query
  * @param {Function} parser - data parser
  * @param {Function} next - callback
  * @param {Array} collections - selected collections
  */
-function someCollections(db, name, parser, next, collections) {
+function someCollections(db, name, query, parser, next, collections) {
 
   var last = collections.length - 1;
   collections.forEach(function(collection, index) {
@@ -210,7 +212,7 @@ function someCollections(db, name, parser, next, collections) {
       }
       makeDir(name + collection.collectionName + '/', function(err, name) {
 
-        collection.find().toArray(function(err, docs) {
+        collection.find(query).toArray(function(err, docs) {
 
           if (err !== null) {
             return error(err);
@@ -252,6 +254,10 @@ function wrapper(my) {
   if (my.collections !== null) {
     discriminator = someCollections;
   }
+  var query = {};
+  if (my.query !== null) {
+    query = my.query;
+  }
 
   client.connect(my.uri, function(err, db) {
 
@@ -264,7 +270,7 @@ function wrapper(my) {
       // waiting for `db.fsyncLock()` on node driver
       makeDir(name + db.databaseName + '/', function(err, name) {
 
-        discriminator(db, name, parser, function() {
+        discriminator(db, name, query, parser, function() {
 
           db.close();
           if (my.tar !== null) {
@@ -307,7 +313,8 @@ function backup(options) {
     parser: String(opt.parser || 'bson'),
     collections: Array.isArray(opt.collections) ? opt.collections : null,
     callback: typeof (opt.callback) == 'function' ? opt.callback : null,
-    tar: typeof opt.tar === 'string' ? opt.tar : null
+    tar: typeof opt.tar === 'string' ? opt.tar : null,
+    query: typeof opt.query === 'object' ? opt.query : null
   };
   return wrapper(my);
 }
