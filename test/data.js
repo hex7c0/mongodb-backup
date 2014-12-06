@@ -35,7 +35,7 @@ describe('data', function() {
   var ROOT = __dirname + '/dump';
   this.timeout(10000);
 
-  describe('query', function() {
+  describe('db query', function() {
 
     it('should return data from "logins" collection', function(done) {
 
@@ -53,6 +53,97 @@ describe('data', function() {
             done();
           });
         });
+      });
+    });
+  });
+
+  describe('query', function() {
+
+    it('should build 1 directory and 1 file (*.json)', function(done) {
+
+      backup({
+        uri: URI,
+        root: ROOT,
+        collections: [ 'logins' ],
+        parser: 'json',
+        query: {
+          _id: DOCS[Object.keys(DOCS)[0]]._id
+        },
+        callback: function() {
+
+          fs.readdirSync(ROOT).forEach(function(first) { // database
+
+            var database = ROOT + '/' + first;
+            if (fs.statSync(database).isDirectory() === false) {
+              return;
+            }
+            var second = fs.readdirSync(database);
+            assert.equal(second.length, 1);
+            assert.equal(second[0], 'logins');
+            var collection = database + '/' + second[0];
+            if (fs.statSync(collection).isDirectory() === false) {
+              return;
+            }
+            var docs = fs.readdirSync(collection);
+            assert.equal(docs.length, 1, 'forget?');
+            var third = docs[0];
+            var document = collection + '/' + third;
+            assert.equal(extname(third), '.json');
+            var _id = third.split('.json')[0];
+            var data = require(document);
+            // JSON error on id and Date
+            assert.equal(data._id, DOCS[_id]._id);
+            assert.equal(data._id, DOCS[Object.keys(DOCS)[0]]._id);
+            fs.unlinkSync(document);
+            fs.rmdirSync(collection);
+            fs.rmdirSync(database);
+          });
+          done();
+        }
+      });
+    });
+    it('should build 1 directory and 1 file (*.bson)', function(done) {
+
+      backup({
+        uri: URI,
+        root: ROOT,
+        collections: [ 'logins' ],
+        parser: 'bson',
+        query: {
+          _id: DOCS[Object.keys(DOCS)[0]]._id
+        },
+        callback: function() {
+
+          fs.readdirSync(ROOT).forEach(function(first) { // database
+
+            var database = ROOT + '/' + first;
+            if (fs.statSync(database).isDirectory() === false) {
+              return;
+            }
+            var second = fs.readdirSync(database);
+            assert.equal(second.length, 1);
+            assert.equal(second[0], 'logins');
+            var collection = database + '/' + second[0];
+            if (fs.statSync(collection).isDirectory() === false) {
+              return;
+            }
+            var docs = fs.readdirSync(collection);
+            assert.equal(docs.length, 1, 'forget?');
+            var third = docs[0];
+            var document = collection + '/' + third;
+            assert.equal(extname(third), '.bson');
+            var _id = third.split('.bson')[0];
+            var data = BSON.deserialize(fs.readFileSync(document, {
+              encoding: null
+            }));
+            assert.deepEqual(data, DOCS[_id]);
+            assert.equal(String(data._id), DOCS[Object.keys(DOCS)[0]]._id);
+            fs.unlinkSync(document);
+            fs.rmdirSync(collection);
+            fs.rmdirSync(database);
+          });
+          done();
+        }
       });
     });
   });
