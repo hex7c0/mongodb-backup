@@ -30,7 +30,7 @@ try {
 describe('structure', function() {
 
   var ROOT = __dirname + '/dump';
-  this.timeout(10000);
+  this.timeout(3000);
 
   describe('collections', function() {
 
