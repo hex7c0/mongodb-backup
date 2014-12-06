@@ -275,6 +275,14 @@ function wrapper(my) {
     });
     logger('backup start');
   }
+  function callback() {
+
+    logger('backup stop');
+    if (my.callback !== null) {
+      logger('callback run');
+      my.callback();
+    }
+  }
 
   client.connect(my.uri, function(err, db) {
 
@@ -293,21 +301,23 @@ function wrapper(my) {
           logger('db close');
           db.close();
           if (my.tar !== null) {
-            var dest = my.root + my.tar;
-            logger('make tar file at ' + dest);
-            dest = fs.createWriteStream(dest);
-            var packer = require('tar').Pack().on('error', error);
-            require('fstream').Reader({
-              path: root,
-              type: 'Directory'
-            }).on('error', error).pipe(packer).pipe(dest);
-            rmDir(root);
+            return makeDir(my.root, function(err, name) {
+
+              logger('make tar file at ' + name + my.tar);
+              var dest = fs.createWriteStream(name + my.tar);
+              var packer = require('tar').Pack().on('error', error)
+                  .on('end', function() {
+
+                    rmDir(root);
+                    callback();
+                  });
+              require('fstream').Reader({
+                path: root,
+                type: 'Directory'
+              }).on('error', error).pipe(packer).pipe(dest);
+            });
           }
-          if (my.callback !== null) {
-            logger('callback run');
-            my.callback();
-          }
-          logger('backup stop');
+          callback();
         }, my.collections);
       });
     });
