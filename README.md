@@ -36,6 +36,7 @@ var backup = require('mongodb-backup');
  - `[callback]` - **Function** Callback *(default "disabled")*
  - `[tar]` - **String** Pack files into a .tar file *(default "disabled")*
  - `[query]` - **Object** Query that optionally limits the documents included *(default "{}")*
+ - `[logger]` - **String** Path where save log file *(default "disabled")*
 
 ## Examples
 
