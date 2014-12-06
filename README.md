@@ -34,7 +34,8 @@ var backup = require('mongodb-backup');
  - `[parser]` - **String** Data parser (bson, json) *(default "bson")*
  - `[collections]` - **Array** Select which collections save *(default "disabled")*
  - `[callback]` - **Function** Callback *(default "disabled")*
- - `[tar]` - **String** Pack files into tar file *(default "disabled")*
+ - `[tar]` - **String** Pack files into a .tar file *(default "disabled")*
+ - `[query]` - **Object** Query that optionally limits the documents included *(default "{}")*
 
 ## Examples
 
