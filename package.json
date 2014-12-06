@@ -26,7 +26,6 @@
     "bson": "0.2.15",
     "fstream": "1.0.3",
     "mongodb": "1.4.22",
-    "rmdir": "1.0.4",
     "tar": "1.0.3"
   },
   "devDependencies": {

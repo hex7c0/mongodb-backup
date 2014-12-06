@@ -66,6 +66,41 @@ function makeDir(path, next) {
 }
 
 /**
+ * remove dir
+ * 
+ * @function rmDir
+ * @param {String} path - path of dir
+ * @param {Function} next - callback
+ */
+function rmDir(path, next) {
+
+  fs.readdirSync(path).forEach(function(first) { // database
+
+    var database = path + '/' + first;
+    if (fs.statSync(database).isDirectory() === false) {
+      return;
+    }
+    fs.readdirSync(database).forEach(function(second) { // collection
+
+      var collection = database + '/' + second;
+      if (fs.statSync(collection).isDirectory() === false) {
+        return;
+      }
+      fs.readdirSync(collection).forEach(function(third) { // document
+
+        var document = collection + '/' + third;
+        if (next !== undefined) {
+          next(null, document);
+        }
+        fs.unlinkSync(document);
+      });
+      fs.rmdirSync(collection);
+    });
+    fs.rmdirSync(database);
+  });
+}
+
+/**
  * JSON parser
  * 
  * @function toJson
@@ -239,13 +274,7 @@ function wrapper(my) {
               path: root,
               type: 'Directory'
             }).on('error', error).pipe(packer).pipe(dest);
-            return require('rmdir')(root, function() {
-
-              if (my.callback !== null) {
-                my.callback();
-              }
-              return;
-            });
+            rmDir(root);
           }
           if (my.callback !== null) {
             my.callback();
