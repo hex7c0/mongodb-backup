@@ -14,7 +14,7 @@
  */
 // import
 try {
-  var monitode = require('..');
+  var backup = require('..');
   var assert = require('assert');
   var fs = require('fs');
   var extname = require('path').extname;
@@ -61,7 +61,7 @@ describe('data', function() {
 
     it('should build 1 directory (*.json)', function(done) {
 
-      monitode({
+      backup({
         uri: URI,
         root: ROOT,
         collections: [ 'logins' ],
@@ -70,28 +70,31 @@ describe('data', function() {
 
           fs.readdirSync(ROOT).forEach(function(first) { // database
 
-            var second = ROOT + '/' + first;
-            if (!fs.statSync(second).isDirectory()) {
+            var database = ROOT + '/' + first;
+            if (fs.statSync(database).isDirectory() === false) {
               return;
             }
-            var third = fs.readdirSync(second);
-            assert.equal(third.length, 1);
-            third = third[0];
-            assert.equal(third, 'logins');
-            var last = second + '/' + third;
-            if (!fs.statSync(last).isDirectory()) {
+            var second = fs.readdirSync(database);
+            assert.equal(second.length, 1);
+            assert.equal(second[0], 'logins');
+            var collection = database + '/' + second[0];
+            if (fs.statSync(collection).isDirectory() === false) {
               return;
             }
-            var docs = fs.readdirSync(last);
+            var docs = fs.readdirSync(collection);
             assert.equal(docs.length, Object.keys(DOCS).length, 'forget?');
-            docs.forEach(function(item) { // documents
+            docs.forEach(function(third) { // document
 
-              var _id = item.split('.json')[0];
-              var data = require(last + '/' + item);
+              var document = collection + '/' + third;
+              assert.equal(extname(third), '.json');
+              var _id = third.split('.json')[0];
+              var data = require(document);
               // JSON error on id and Date
               assert.equal(data._id, DOCS[_id]._id);
-              fs.unlinkSync(last + '/' + item);
+              fs.unlinkSync(document);
             });
+            fs.rmdirSync(collection);
+            fs.rmdirSync(database);
           });
           done();
         }
@@ -99,7 +102,7 @@ describe('data', function() {
     });
     it('should build 1 directory (*.bson)', function(done) {
 
-      monitode({
+      backup({
         uri: URI,
         root: ROOT,
         collections: [ 'logins' ],
@@ -108,29 +111,32 @@ describe('data', function() {
 
           fs.readdirSync(ROOT).forEach(function(first) { // database
 
-            var second = ROOT + '/' + first;
-            if (!fs.statSync(second).isDirectory()) {
+            var database = ROOT + '/' + first;
+            if (fs.statSync(database).isDirectory() === false) {
               return;
             }
-            var third = fs.readdirSync(second);
-            assert.equal(third.length, 1);
-            third = third[0];
-            assert.equal(third, 'logins');
-            var last = second + '/' + third;
-            if (!fs.statSync(last).isDirectory()) {
+            var second = fs.readdirSync(database);
+            assert.equal(second.length, 1);
+            assert.equal(second[0], 'logins');
+            var collection = database + '/' + second[0];
+            if (fs.statSync(collection).isDirectory() === false) {
               return;
             }
-            var docs = fs.readdirSync(last);
+            var docs = fs.readdirSync(collection);
             assert.equal(docs.length, Object.keys(DOCS).length, 'forget?');
-            docs.forEach(function(item) { // documents
+            docs.forEach(function(third) { // document
 
-              var _id = item.split('.bson')[0];
-              var data = BSON.deserialize(fs.readFileSync(last + '/' + item, {
+              var document = collection + '/' + third;
+              assert.equal(extname(third), '.bson');
+              var _id = third.split('.bson')[0];
+              var data = BSON.deserialize(fs.readFileSync(document, {
                 encoding: null
               }));
               assert.deepEqual(data, DOCS[_id]);
-              fs.unlinkSync(last + '/' + item);
+              fs.unlinkSync(document);
             });
+            fs.rmdirSync(collection);
+            fs.rmdirSync(database);
           });
           done();
         }

@@ -14,7 +14,7 @@
  */
 // import
 try {
-  var monitode = require('..');
+  var backup = require('..');
   var assert = require('assert');
   var fs = require('fs');
   var extname = require('path').extname;
@@ -36,7 +36,7 @@ describe('structure', function() {
 
     it('should build 1 directory (*.json)', function(done) {
 
-      monitode({
+      backup({
         uri: URI,
         root: ROOT,
         collections: [ 'logins' ],
@@ -45,23 +45,25 @@ describe('structure', function() {
 
           fs.readdirSync(ROOT).forEach(function(first) { // database
 
-            var second = ROOT + '/' + first;
-            if (!fs.statSync(second).isDirectory()) {
+            var database = ROOT + '/' + first;
+            if (fs.statSync(database).isDirectory() === false) {
               return;
             }
-            var third = fs.readdirSync(second);
-            assert.equal(third.length, 1);
-            third = third[0];
-            assert.equal(third, 'logins');
-            var last = second + '/' + third;
-            if (!fs.statSync(last).isDirectory()) {
+            var second = fs.readdirSync(database);
+            assert.equal(second.length, 1);
+            assert.equal(second[0], 'logins');
+            var collection = database + '/' + second[0];
+            if (fs.statSync(collection).isDirectory() === false) {
               return;
             }
-            fs.readdirSync(last).forEach(function(item) { // documents
+            fs.readdirSync(collection).forEach(function(third) { // document
 
-              assert.equal(extname(item), '.json');
-              fs.unlinkSync(last + '/' + item);
+              assert.equal(extname(third), '.json');
+              var document = collection + '/' + third;
+              fs.unlinkSync(document);
             });
+            fs.rmdirSync(collection);
+            fs.rmdirSync(database);
           });
           done();
         }
@@ -69,7 +71,7 @@ describe('structure', function() {
     });
     it('should build 1 directory (*.bson)', function(done) {
 
-      monitode({
+      backup({
         uri: URI,
         root: ROOT,
         collections: [ 'logins' ],
@@ -78,23 +80,25 @@ describe('structure', function() {
 
           fs.readdirSync(ROOT).forEach(function(first) { // database
 
-            var second = ROOT + '/' + first;
-            if (!fs.statSync(second).isDirectory()) {
+            var database = ROOT + '/' + first;
+            if (fs.statSync(database).isDirectory() === false) {
               return;
             }
-            var third = fs.readdirSync(second);
-            assert.equal(third.length, 1);
-            third = third[0];
-            assert.equal(third, 'logins');
-            var last = second + '/' + third;
-            if (!fs.statSync(last).isDirectory()) {
+            var second = fs.readdirSync(database);
+            assert.equal(second.length, 1);
+            assert.equal(second[0], 'logins');
+            var collection = database + '/' + second[0];
+            if (fs.statSync(collection).isDirectory() === false) {
               return;
             }
-            fs.readdirSync(last).forEach(function(item) { // documents
+            fs.readdirSync(collection).forEach(function(third) { // document
 
-              assert.equal(extname(item), '.bson');
-              fs.unlinkSync(last + '/' + item);
+              assert.equal(extname(third), '.bson');
+              var document = collection + '/' + third;
+              fs.unlinkSync(document);
             });
+            fs.rmdirSync(collection);
+            fs.rmdirSync(database);
           });
           done();
         }
@@ -106,7 +110,7 @@ describe('structure', function() {
 
     it('should build any directories (*.json)', function(done) {
 
-      monitode({
+      backup({
         uri: URI,
         root: ROOT,
         parser: 'json',
@@ -114,22 +118,25 @@ describe('structure', function() {
 
           fs.readdirSync(ROOT).forEach(function(first) { // database
 
-            var second = ROOT + '/' + first;
-            if (!fs.statSync(second).isDirectory()) {
+            var database = ROOT + '/' + first;
+            if (fs.statSync(database).isDirectory() === false) {
               return;
             }
-            fs.readdirSync(second).forEach(function(third) { // collections
+            fs.readdirSync(database).forEach(function(second) { // collection
 
-              var last = second + '/' + third;
-              if (!fs.statSync(last).isDirectory()) {
+              var collection = database + '/' + second;
+              if (fs.statSync(collection).isDirectory() === false) {
                 return;
               }
-              fs.readdirSync(last).forEach(function(item) { // documents
+              fs.readdirSync(collection).forEach(function(third) { // document
 
-                assert.equal(extname(item), '.json');
-                fs.unlinkSync(last + '/' + item);
+                assert.equal(extname(third), '.json');
+                var document = collection + '/' + third;
+                fs.unlinkSync(document);
               });
+              fs.rmdirSync(collection);
             });
+            fs.rmdirSync(database);
           });
           done();
         }
@@ -137,7 +144,7 @@ describe('structure', function() {
     });
     it('should build any directories (*.bson)', function(done) {
 
-      monitode({
+      backup({
         uri: URI,
         root: ROOT,
         parser: 'bson',
@@ -145,22 +152,25 @@ describe('structure', function() {
 
           fs.readdirSync(ROOT).forEach(function(first) { // database
 
-            var second = ROOT + '/' + first;
-            if (!fs.statSync(second).isDirectory()) {
+            var database = ROOT + '/' + first;
+            if (fs.statSync(database).isDirectory() === false) {
               return;
             }
-            fs.readdirSync(second).forEach(function(third) { // collections
+            fs.readdirSync(database).forEach(function(second) { // collection
 
-              var last = second + '/' + third;
-              if (!fs.statSync(last).isDirectory()) {
+              var collection = database + '/' + second;
+              if (fs.statSync(collection).isDirectory() === false) {
                 return;
               }
-              fs.readdirSync(last).forEach(function(item) { // documents
+              fs.readdirSync(collection).forEach(function(third) { // document
 
-                assert.equal(extname(item), '.bson');
-                fs.unlinkSync(last + '/' + item);
+                assert.equal(extname(third), '.bson');
+                var document = collection + '/' + third;
+                fs.unlinkSync(document);
               });
+              fs.rmdirSync(collection);
             });
+            fs.rmdirSync(database);
           });
           done();
         }
@@ -172,14 +182,15 @@ describe('structure', function() {
 
     it('should make a tar file', function(done) {
 
-      monitode({
+      backup({
         uri: URI,
         root: ROOT,
         tar: 't1.tar',
         callback: function() {
 
-          assert.equal(fs.existsSync(ROOT + '/t1.tar'), true);
-          fs.unlink(ROOT + '/t1.tar', function() {
+          var path = ROOT + '/t1.tar';
+          assert.equal(fs.existsSync(path), true);
+          fs.unlink(path, function() {
 
             done();
           });
@@ -188,7 +199,9 @@ describe('structure', function() {
     });
     it('should check that buffer dir not exist', function(done) {
 
-      assert.equal(fs.existsSync(__dirname + '/../dump'), false);
+      var path = __dirname + '/../dump';
+      assert.equal(fs.existsSync(path), true); // stay alive
+      assert.equal(fs.readdirSync(path).length, 0, 'empty dir');
       done();
     });
   });
