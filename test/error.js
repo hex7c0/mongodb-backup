@@ -14,7 +14,7 @@
  */
 // import
 try {
-  var monitode = require('..');
+  var backup = require('..');
   var assert = require('assert');
 } catch (MODULE_NOT_FOUND) {
   console.error(MODULE_NOT_FOUND);
@@ -30,17 +30,17 @@ describe('error', function() {
 
     var mex = 'missing uri option';
     try {
-      monitode();
+      backup();
     } catch (e) {
       assert.equal(e.message, mex);
     }
     try {
-      monitode({});
+      backup({});
     } catch (e) {
       assert.equal(e.message, mex);
     }
     try {
-      monitode({
+      backup({
         root: 'ciao'
       });
     } catch (e) {
@@ -52,7 +52,7 @@ describe('error', function() {
 
     var mex = 'missing root option';
     try {
-      monitode({
+      backup({
         uri: 'ciao'
       });
     } catch (e) {
@@ -64,7 +64,7 @@ describe('error', function() {
 
     var mex = 'missing parser option';
     try {
-      monitode({
+      backup({
         uri: 'ciao',
         root: 'ciao',
         parser: 'ciao'
@@ -78,7 +78,7 @@ describe('error', function() {
 
     var mex = 'URL must be in the format mongodb://user:pass@host:port/dbname';
     try {
-      monitode({
+      backup({
         uri: 'ciao',
         root: 'ciao'
       });
