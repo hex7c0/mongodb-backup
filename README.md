@@ -4,7 +4,8 @@
 [![Build Status](https://travis-ci.org/hex7c0/mongodb-backup.svg)](https://travis-ci.org/hex7c0/mongodb-backup)
 [![Dependency Status](https://david-dm.org/hex7c0/mongodb-backup/status.svg)](https://david-dm.org/hex7c0/mongodb-backup)
 
-backup for mongodb
+Backup for mongodb.
+Look at [`mongodb-backup-cli`](https://github.com/hex7c0/mongodb-backup-cli) for command line usage
 
 ## Installation
 
