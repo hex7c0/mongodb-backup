@@ -1,3 +1,10 @@
+0.0.3 / 2014-12-06
+==================
+
+  * Fix bug when empty docs or collections
+  * Fix bug when missing dir of tarfile
+  * Fix bug on callback after tar packer
+
 0.0.2 / 2014-12-06
 ==================
 
