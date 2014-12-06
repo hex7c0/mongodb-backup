@@ -204,5 +204,85 @@ describe('structure', function() {
       assert.equal(fs.readdirSync(path).length, 0, 'empty dir');
       done();
     });
+    it('should remove dirs', function(done) {
+
+      fs.readdirSync(ROOT).forEach(function(first) { // database
+
+        var database = ROOT + '/' + first;
+        if (fs.statSync(database).isDirectory() === false) {
+          return;
+        }
+        fs.readdirSync(database).forEach(function(second) { // collection
+
+          var collection = database + '/' + second;
+          if (fs.statSync(collection).isDirectory() === false) {
+            return;
+          }
+          fs.readdirSync(collection).forEach(function(third) { // document
+
+            assert.equal(extname(third), '.bson');
+            var document = collection + '/' + third;
+            fs.unlinkSync(document);
+          });
+          fs.rmdirSync(collection);
+        });
+        fs.rmdirSync(database);
+      });
+      done();
+    });
+  });
+
+  describe('logger', function() {
+
+    it('should make a log file', function(done) {
+
+      backup({
+        uri: URI,
+        root: ROOT,
+        logger: 'l1.log',
+        callback: function() {
+
+          var path = 'l1.log';
+          assert.equal(fs.existsSync(path), true);
+          fs.unlink(path, function() {
+
+            done();
+          });
+        }
+      });
+    });
+    it('should check that buffer dir not exist', function(done) {
+
+      var path = __dirname + '/../dump';
+      assert.equal(fs.existsSync(path), true); // stay alive
+      assert.equal(fs.readdirSync(path).length, 0, 'empty dir');
+      done();
+    });
+    it('should remove dirs', function(done) {
+
+      fs.readdirSync(ROOT).forEach(function(first) { // database
+
+        var database = ROOT + '/' + first;
+        if (fs.statSync(database).isDirectory() === false) {
+          return;
+        }
+        fs.readdirSync(database).forEach(function(second) { // collection
+
+          var collection = database + '/' + second;
+          if (fs.statSync(collection).isDirectory() === false) {
+            return;
+          }
+          fs.readdirSync(collection).forEach(function(third) { // document
+
+            assert.equal(extname(third), '.bson');
+            var document = collection + '/' + third;
+            fs.unlinkSync(document);
+          });
+          fs.rmdirSync(collection);
+        });
+        fs.rmdirSync(database);
+      });
+      done();
+    });
   });
 });
