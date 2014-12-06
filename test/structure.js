@@ -180,6 +180,12 @@ describe('structure', function() {
 
   describe('tar', function() {
 
+    var path = ROOT + '/t1.tar';
+    it('should check that tar file not exist before test', function(done) {
+
+      assert.equal(fs.existsSync(path), false);
+      done();
+    });
     it('should make a tar file', function(done) {
 
       backup({
@@ -188,7 +194,6 @@ describe('structure', function() {
         tar: 't1.tar',
         callback: function() {
 
-          var path = ROOT + '/t1.tar';
           assert.equal(fs.existsSync(path), true);
           fs.unlink(path, function() {
 
@@ -199,9 +204,9 @@ describe('structure', function() {
     });
     it('should check that buffer dir not exist', function(done) {
 
-      var path = __dirname + '/../dump';
-      assert.equal(fs.existsSync(path), true); // stay alive
-      assert.equal(fs.readdirSync(path).length, 0, 'empty dir');
+      var paths = __dirname + '/../dump';
+      assert.equal(fs.existsSync(paths), true); // stay alive
+      assert.equal(fs.readdirSync(paths).length, 0, 'empty dir');
       done();
     });
     it('should remove dirs', function(done) {
@@ -234,6 +239,12 @@ describe('structure', function() {
 
   describe('logger', function() {
 
+    var path = 'l1.log';
+    it('should check that log file not exist before test', function(done) {
+
+      assert.equal(fs.existsSync(path), false);
+      done();
+    });
     it('should make a log file', function(done) {
 
       backup({
@@ -242,7 +253,6 @@ describe('structure', function() {
         logger: 'l1.log',
         callback: function() {
 
-          var path = 'l1.log';
           assert.equal(fs.existsSync(path), true);
           fs.unlink(path, function() {
 
@@ -250,13 +260,6 @@ describe('structure', function() {
           });
         }
       });
-    });
-    it('should check that buffer dir not exist', function(done) {
-
-      var path = __dirname + '/../dump';
-      assert.equal(fs.existsSync(path), true); // stay alive
-      assert.equal(fs.readdirSync(path).length, 0, 'empty dir');
-      done();
     });
     it('should remove dirs', function(done) {
 
