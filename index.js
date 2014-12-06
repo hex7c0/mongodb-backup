@@ -21,6 +21,7 @@ try {
   // module
   var client = require('mongodb').MongoClient;
   var BSON;
+  var logger;
 } catch (MODULE_NOT_FOUND) {
   console.error(MODULE_NOT_FOUND);
   process.exit(1);
@@ -32,13 +33,13 @@ try {
 /**
  * error handler
  * 
- * @todo write logger
  * @function error
  * @param {Object} err - raised error
  */
 function error(err) {
 
-  return err;
+  logger(err.message);
+  return;
 }
 
 /**
@@ -53,8 +54,10 @@ function makeDir(path, next) {
   fs.stat(path, function(err, stats) {
 
     if (err !== null && err.code === 'ENOENT') {
+      logger('make dir at ' + path);
       fs.mkdir(path, next(null, path));
     } else if (stats !== undefined && stats.isDirectory() === false) {
+      logger('make dir at ' + path);
       fs.unlink(path, function() {
 
         fs.mkdir(path, next(error(new Error('path was a file')), path));
@@ -170,6 +173,7 @@ function allCollections(db, name, query, parser, next) {
     var last = collections.length - 1;
     collections.forEach(function(collection, index) {
 
+      logger('select collection ' + collection.collectionName);
       makeDir(name + collection.collectionName + '/', function(err, name) {
 
         collection.find(query).toArray(function(err, docs) {
@@ -207,6 +211,7 @@ function someCollections(db, name, query, parser, next, collections) {
 
     db.collection(collection, function(err, collection) {
 
+      logger('select collection ' + collection.collectionName);
       if (err !== null) {
         return error(err);
       }
@@ -254,9 +259,26 @@ function wrapper(my) {
   if (my.collections !== null) {
     discriminator = someCollections;
   }
+  if (my.logger === null) {
+    logger = function() {
+
+      return;
+    };
+  } else {
+    logger = require('logger-request')({
+      filename: my.logger,
+      standalone: true,
+      winston: {
+        logger: '_mongodb',
+        level: 'info'
+      }
+    });
+    logger('backup start');
+  }
 
   client.connect(my.uri, function(err, db) {
 
+    logger('db open');
     if (err !== null) {
       return error(err);
     }
@@ -268,9 +290,12 @@ function wrapper(my) {
 
         discriminator(db, name, my.query, parser, function() {
 
+          logger('db close');
           db.close();
           if (my.tar !== null) {
-            var dest = fs.createWriteStream(my.root + my.tar);
+            var dest = my.root + my.tar;
+            logger('make tar file at ' + dest);
+            dest = fs.createWriteStream(dest);
             var packer = require('tar').Pack().on('error', error);
             require('fstream').Reader({
               path: root,
@@ -279,8 +304,10 @@ function wrapper(my) {
             rmDir(root);
           }
           if (my.callback !== null) {
+            logger('callback run');
             my.callback();
           }
+          logger('backup stop');
         }, my.collections);
       });
     });
@@ -310,7 +337,8 @@ function backup(options) {
     collections: Array.isArray(opt.collections) ? opt.collections : null,
     callback: typeof (opt.callback) == 'function' ? opt.callback : null,
     tar: typeof opt.tar === 'string' ? opt.tar : null,
-    query: typeof opt.query === 'object' ? opt.query : {}
+    query: typeof opt.query === 'object' ? opt.query : {},
+    logger: typeof opt.logger === 'string' ? resolve(opt.logger) : null
   };
   return wrapper(my);
 }
