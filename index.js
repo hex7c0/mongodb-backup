@@ -254,10 +254,6 @@ function wrapper(my) {
   if (my.collections !== null) {
     discriminator = someCollections;
   }
-  var query = {};
-  if (my.query !== null) {
-    query = my.query;
-  }
 
   client.connect(my.uri, function(err, db) {
 
@@ -270,7 +266,7 @@ function wrapper(my) {
       // waiting for `db.fsyncLock()` on node driver
       makeDir(name + db.databaseName + '/', function(err, name) {
 
-        discriminator(db, name, query, parser, function() {
+        discriminator(db, name, my.query, parser, function() {
 
           db.close();
           if (my.tar !== null) {
@@ -314,7 +310,7 @@ function backup(options) {
     collections: Array.isArray(opt.collections) ? opt.collections : null,
     callback: typeof (opt.callback) == 'function' ? opt.callback : null,
     tar: typeof opt.tar === 'string' ? opt.tar : null,
-    query: typeof opt.query === 'object' ? opt.query : null
+    query: typeof opt.query === 'object' ? opt.query : {}
   };
   return wrapper(my);
 }
