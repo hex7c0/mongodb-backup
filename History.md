@@ -2,7 +2,7 @@
 ==================
 
   * Update `logger-request`@3.2.4
-  * Update `mongodb`@1.4.25
+  * Update `mongodb`@1.4.26
 
 0.0.5 / 2014-12-18
 ==================
