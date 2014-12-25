@@ -4,7 +4,7 @@
  * @module mongodb-backup
  * @package mongodb-backup
  * @subpackage main
- * @version 0.0.0
+ * @version 0.1.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -23,6 +23,7 @@ try {
   var client = mongo.MongoClient;
   var BSON;
   var logger;
+  var meta;
 } catch (MODULE_NOT_FOUND) {
   console.error(MODULE_NOT_FOUND);
   process.exit(1);
@@ -40,6 +41,27 @@ try {
 function error(err) {
 
   return logger(err.message);
+}
+
+/**
+ * save collection metadata to file
+ * 
+ * @function writeMetadata
+ * @param {Object} collection - db collection
+ * @param {String} metadata - path of metadata
+ */
+function writeMetadata(collection, metadata) {
+
+  collection.indexes(function(err, index) {
+
+    if (err !== null) {
+      return error(err);
+    }
+    fs.writeFileSync(metadata + collection.collectionName, JSON
+        .stringify(index), {
+      encoding: 'utf8'
+    });
+  });
 }
 
 /**
@@ -193,19 +215,7 @@ function allCollections(db, name, query, metadata, parser, next) {
       logger('select collection ' + collection.collectionName);
       makeDir(name + collection.collectionName + '/', function(err, name) {
 
-        if (metadata !== '') {
-          collection.indexes(function(err, index) {
-
-            if (err !== null) {
-              error(err);
-            } else {
-              fs.writeFileSync(metadata + collection.collectionName, JSON
-                  .stringify(index), {
-                encoding: 'utf8'
-              });
-            }
-          });
-        }
+        meta(collection, metadata);
         collection.find(query).toArray(function(err, docs) {
 
           if (err !== null) {
@@ -252,19 +262,7 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
       }
       makeDir(name + collection.collectionName + '/', function(err, name) {
 
-        if (metadata !== '') {
-          collection.indexes(function(err, index) {
-
-            if (err !== null) {
-              error(err);
-            } else {
-              fs.writeFileSync(metadata + collection.collectionName, JSON
-                  .stringify(index), {
-                encoding: 'utf8'
-              });
-            }
-          });
-        }
+        meta(collection, metadata);
         collection.find(query).toArray(function(err, docs) {
 
           if (err !== null) {
@@ -325,6 +323,15 @@ function wrapper(my) {
       }
     });
     logger('backup start');
+  }
+
+  if (my.metadata === true) {
+    meta = writeMetadata;
+  } else {
+    meta = function() {
+
+      return;
+    };
   }
 
   function callback() {
