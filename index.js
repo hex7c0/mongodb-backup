@@ -354,39 +354,43 @@ function wrapper(my) {
 
       makeDir(name + db.databaseName + '/', function(err, name) {
 
+        var go = function() {
+
+          // waiting for `db.fsyncLock()` on node driver
+          discriminator(db, name, my.query, metadata, parser, function() {
+
+            logger('db close');
+            db.close();
+            if (my.tar !== null) {
+              return makeDir(my.root, function(err, name) {
+
+                logger('make tar file at ' + name + my.tar);
+                var dest = fs.createWriteStream(name + my.tar);
+                var packer = require('tar').Pack().on('error', error)
+                    .on('end', function() {
+
+                      rmDir(root);
+                      callback();
+                    });
+                require('fstream').Reader({
+                  path: root + db.databaseName,
+                  type: 'Directory'
+                }).on('error', error).pipe(packer).pipe(dest);
+              });
+            }
+            callback();
+          }, my.collections);
+        };
         var metadata = '';
-        if (my.metadata === true) {
+        if (my.metadata === false) {
+          go();
+        } else {
           metadata = name + '.metadata/';
           makeDir(metadata, function() {
 
-            return;
+            go();
           });
         }
-
-        // waiting for `db.fsyncLock()` on node driver
-        discriminator(db, name, my.query, metadata, parser, function() {
-
-          logger('db close');
-          db.close();
-          if (my.tar !== null) {
-            return makeDir(my.root, function(err, name) {
-
-              logger('make tar file at ' + name + my.tar);
-              var dest = fs.createWriteStream(name + my.tar);
-              var packer = require('tar').Pack().on('error', error)
-                  .on('end', function() {
-
-                    rmDir(root);
-                    callback();
-                  });
-              require('fstream').Reader({
-                path: root + db.databaseName,
-                type: 'Directory'
-              }).on('error', error).pipe(packer).pipe(dest);
-            });
-          }
-          callback();
-        }, my.collections);
       });
     });
   });
