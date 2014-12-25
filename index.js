@@ -361,7 +361,7 @@ function wrapper(my) {
                     callback();
                   });
               require('fstream').Reader({
-                path: root,
+                path: root + db.databaseName,
                 type: 'Directory'
               }).on('error', error).pipe(packer).pipe(dest);
             });
