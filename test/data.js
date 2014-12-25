@@ -81,7 +81,7 @@ describe('data', function() {
             var second = fs.readdirSync(database);
             assert.equal(second.length, 2);
             assert.equal(second[1], 'logins');
-            fs.unlink(database + '/.metadata/' + second[1]);
+            fs.unlinkSync(database + '/.metadata/' + second[1]);
             var collection = database + '/' + second[1];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
@@ -127,7 +127,7 @@ describe('data', function() {
             var second = fs.readdirSync(database);
             assert.equal(second.length, 2);
             assert.equal(second[1], 'logins');
-            fs.unlink(database + '/.metadata/' + second[1]);
+            fs.unlinkSync(database + '/.metadata/' + second[1]);
             var collection = database + '/' + second[1];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
@@ -175,7 +175,7 @@ describe('data', function() {
             var second = fs.readdirSync(database);
             assert.equal(second.length, 2);
             assert.equal(second[1], 'logins');
-            fs.unlink(database + '/.metadata/' + second[1]);
+            fs.unlinkSync(database + '/.metadata/' + second[1]);
             var collection = database + '/' + second[1];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
@@ -219,7 +219,7 @@ describe('data', function() {
             var second = fs.readdirSync(database);
             assert.equal(second.length, 2);
             assert.equal(second[1], 'logins');
-            fs.unlink(database + '/.metadata/' + second[1]);
+            fs.unlinkSync(database + '/.metadata/' + second[1]);
             var collection = database + '/' + second[1];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
