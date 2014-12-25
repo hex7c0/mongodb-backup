@@ -79,11 +79,17 @@ function rmDir(path, next) {
 
   fs.readdirSync(path).forEach(function(first) { // database
 
-    var database = path + '/' + first;
+    var database = path + first;
     if (fs.statSync(database).isDirectory() === false) {
       return;
     }
-    fs.readdirSync(database).forEach(function(second) { // collection
+    var metadata = '';
+    var collections = fs.readdirSync(database);
+    if (fs.existsSync(database + '/.metadata') === true) {
+      metadata = database + '/.metadata/';
+      delete collections[collections.indexOf('.metadata')]; // undefined is not a dir
+    }
+    collections.forEach(function(second) { // collection
 
       var collection = database + '/' + second;
       if (fs.statSync(collection).isDirectory() === false) {
@@ -97,8 +103,14 @@ function rmDir(path, next) {
         }
         fs.unlinkSync(document);
       });
+      if (metadata !== '') {
+        fs.unlinkSync(metadata + second);
+      }
       fs.rmdirSync(collection);
     });
+    if (metadata !== '') {
+      fs.rmdirSync(metadata);
+    }
     fs.rmdirSync(database);
   });
 }
