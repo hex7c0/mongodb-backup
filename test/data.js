@@ -66,6 +66,7 @@ describe('data', function() {
         root: ROOT,
         collections: [ 'logins' ],
         parser: 'json',
+        metadata: true,
         query: {
           _id: DOCS[Object.keys(DOCS)[0]]._id
         },
@@ -78,9 +79,9 @@ describe('data', function() {
               return;
             }
             var second = fs.readdirSync(database);
-            assert.equal(second.length, 1);
-            assert.equal(second[0], 'logins');
-            var collection = database + '/' + second[0];
+            assert.equal(second.length, 2);
+            assert.equal(second[1], 'logins');
+            var collection = database + '/' + second[1];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
             }
@@ -95,7 +96,9 @@ describe('data', function() {
             assert.equal(data._id, DOCS[_id]._id);
             assert.equal(data._id, DOCS[Object.keys(DOCS)[0]]._id);
             fs.unlinkSync(document);
+            fs.unlink(database + '/.metadata/' + second[1]);
             fs.rmdirSync(collection);
+            fs.rmdirSync(database + '/.metadata/');
             fs.rmdirSync(database);
           });
           done();
@@ -109,6 +112,7 @@ describe('data', function() {
         root: ROOT,
         collections: [ 'logins' ],
         parser: 'bson',
+        metadata: true,
         query: {
           _id: DOCS[Object.keys(DOCS)[0]]._id
         },
@@ -121,9 +125,9 @@ describe('data', function() {
               return;
             }
             var second = fs.readdirSync(database);
-            assert.equal(second.length, 1);
-            assert.equal(second[0], 'logins');
-            var collection = database + '/' + second[0];
+            assert.equal(second.length, 2);
+            assert.equal(second[1], 'logins');
+            var collection = database + '/' + second[1];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
             }
@@ -139,7 +143,9 @@ describe('data', function() {
             assert.deepEqual(data, DOCS[_id]);
             assert.equal(String(data._id), DOCS[Object.keys(DOCS)[0]]._id);
             fs.unlinkSync(document);
+            fs.unlink(database + '/.metadata/' + second[1]);
             fs.rmdirSync(collection);
+            fs.rmdirSync(database + '/.metadata/');
             fs.rmdirSync(database);
           });
           done();
@@ -157,6 +163,7 @@ describe('data', function() {
         root: ROOT,
         collections: [ 'logins' ],
         parser: 'json',
+        metadata: true,
         callback: function() {
 
           fs.readdirSync(ROOT).forEach(function(first) { // database
@@ -166,9 +173,9 @@ describe('data', function() {
               return;
             }
             var second = fs.readdirSync(database);
-            assert.equal(second.length, 1);
-            assert.equal(second[0], 'logins');
-            var collection = database + '/' + second[0];
+            assert.equal(second.length, 2);
+            assert.equal(second[1], 'logins');
+            var collection = database + '/' + second[1];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
             }
@@ -184,7 +191,9 @@ describe('data', function() {
               assert.equal(data._id, DOCS[_id]._id);
               fs.unlinkSync(document);
             });
+            fs.unlink(database + '/.metadata/' + second[1]);
             fs.rmdirSync(collection);
+            fs.rmdirSync(database + '/.metadata/');
             fs.rmdirSync(database);
           });
           done();
@@ -198,6 +207,7 @@ describe('data', function() {
         root: ROOT,
         collections: [ 'logins' ],
         parser: 'bson',
+        metadata: true,
         callback: function() {
 
           fs.readdirSync(ROOT).forEach(function(first) { // database
@@ -207,9 +217,9 @@ describe('data', function() {
               return;
             }
             var second = fs.readdirSync(database);
-            assert.equal(second.length, 1);
-            assert.equal(second[0], 'logins');
-            var collection = database + '/' + second[0];
+            assert.equal(second.length, 2);
+            assert.equal(second[1], 'logins');
+            var collection = database + '/' + second[1];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
             }
@@ -226,7 +236,9 @@ describe('data', function() {
               assert.deepEqual(data, DOCS[_id]);
               fs.unlinkSync(document);
             });
+            fs.unlink(database + '/.metadata/' + second[1]);
             fs.rmdirSync(collection);
+            fs.rmdirSync(database + '/.metadata/');
             fs.rmdirSync(database);
           });
           done();
