@@ -158,10 +158,11 @@ function toBson(name, docs, next) {
  * @param {Object} db - database
  * @param {String} name - path of dir
  * @param {Object} query - find query
+ * @param {String} metadata - path of metadata
  * @param {Function} parser - data parser
  * @param {Function} next - callback
  */
-function allCollections(db, name, query, parser, next) {
+function allCollections(db, name, query, metadata, parser, next) {
 
   db.collections(function(err, collections) {
 
@@ -180,6 +181,19 @@ function allCollections(db, name, query, parser, next) {
       logger('select collection ' + collection.collectionName);
       makeDir(name + collection.collectionName + '/', function(err, name) {
 
+        if (metadata !== '') {
+          collection.indexes(function(err, index) {
+
+            if (err !== null) {
+              error(err);
+            } else {
+              fs.writeFileSync(metadata + collection.collectionName, JSON
+                  .stringify(index), {
+                encoding: 'utf8'
+              });
+            }
+          });
+        }
         collection.find(query).toArray(function(err, docs) {
 
           if (err !== null) {
@@ -205,11 +219,12 @@ function allCollections(db, name, query, parser, next) {
  * @param {Object} db - database
  * @param {String} name - path of dir
  * @param {Object} query - find query
+ * @param {String} metadata - path of metadata
  * @param {Function} parser - data parser
  * @param {Function} next - callback
  * @param {Array} collections - selected collections
  */
-function someCollections(db, name, query, parser, next, collections) {
+function someCollections(db, name, query, metadata, parser, next, collections) {
 
   var last = collections.length - 1;
   if (last < 0) {
@@ -225,6 +240,19 @@ function someCollections(db, name, query, parser, next, collections) {
       }
       makeDir(name + collection.collectionName + '/', function(err, name) {
 
+        if (metadata !== '') {
+          collection.indexes(function(err, index) {
+
+            if (err !== null) {
+              error(err);
+            } else {
+              fs.writeFileSync(metadata + collection.collectionName, JSON
+                  .stringify(index), {
+                encoding: 'utf8'
+              });
+            }
+          });
+        }
         collection.find(query).toArray(function(err, docs) {
 
           if (err !== null) {
@@ -307,8 +335,17 @@ function wrapper(my) {
 
       makeDir(name + db.databaseName + '/', function(err, name) {
 
+        var metadata = '';
+        if (my.metadata === true) {
+          metadata = name + '.metadata/';
+          makeDir(metadata, function() {
+
+            return;
+          });
+        }
+
         // waiting for `db.fsyncLock()` on node driver
-        discriminator(db, name, my.query, parser, function() {
+        discriminator(db, name, my.query, metadata, parser, function() {
 
           logger('db close');
           db.close();
@@ -360,7 +397,8 @@ function backup(options) {
     callback: typeof (opt.callback) == 'function' ? opt.callback : null,
     tar: typeof opt.tar === 'string' ? opt.tar : null,
     query: typeof opt.query === 'object' ? opt.query : {},
-    logger: typeof opt.logger === 'string' ? resolve(opt.logger) : null
+    logger: typeof opt.logger === 'string' ? resolve(opt.logger) : null,
+    metadata: Boolean(opt.metadata)
   };
   return wrapper(my);
 }
