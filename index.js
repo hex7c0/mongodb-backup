@@ -19,7 +19,8 @@ try {
   var fs = require('fs');
   var resolve = require('path').resolve;
   // module
-  var client = require('mongodb').MongoClient;
+  var mongo = require('mongodb');
+  var client = mongo.MongoClient;
   var BSON;
   var logger;
 } catch (MODULE_NOT_FOUND) {
@@ -173,6 +174,9 @@ function allCollections(db, name, query, parser, next) {
     }
     collections.forEach(function(collection, index) {
 
+      if (/^system./.test(collection.collectionName) === true) {
+        return last === index ? next(null) : null;
+      }
       logger('select collection ' + collection.collectionName);
       makeDir(name + collection.collectionName + '/', function(err, name) {
 
@@ -250,7 +254,7 @@ function wrapper(my) {
   var parser;
   switch (my.parser) {
     case 'bson':
-      BSON = require('mongodb').pure().BSON;
+      BSON = mongo.pure().BSON;
       parser = toBson;
       break;
     case 'json':
