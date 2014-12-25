@@ -30,9 +30,9 @@
     "tar": "1.0.3"
   },
   "devDependencies": {
-    "mocha": "~2.0",
+    "mocha": "~2.1",
     "grunt-contrib-clean": "~0.6",
-    "grunt-contrib-uglify": "~0.6",
+    "grunt-contrib-uglify": "~0.7",
     "grunt-contrib-jshint": "~0.10",
     "grunt-endline": "~0.2"
   },
