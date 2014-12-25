@@ -19,7 +19,7 @@ try {
   var fs = require('fs');
   var extname = require('path').extname;
   var client = require('mongodb').MongoClient;
-  var BSON = require('bson').BSONPure.BSON;
+  var BSON = require('mongodb').pure().BSON;
   var URI = process.env.URI;
 } catch (MODULE_NOT_FOUND) {
   console.error(MODULE_NOT_FOUND);
