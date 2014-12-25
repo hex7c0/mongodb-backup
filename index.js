@@ -119,11 +119,9 @@ function toJson(name, docs, next) {
   docs.forEach(function(doc, index) {
 
     // no async. EMFILE error
-    if (doc._id !== undefined) {
-      fs.writeFileSync(name + doc._id + '.json', JSON.stringify(doc), {
-        encoding: 'utf8'
-      });
-    }
+    fs.writeFileSync(name + doc._id + '.json', JSON.stringify(doc), {
+      encoding: 'utf8'
+    });
     return last === index ? next(null) : null;
   });
 }
@@ -145,11 +143,9 @@ function toBson(name, docs, next) {
   docs.forEach(function(doc, index) {
 
     // no async. EMFILE error
-    if (doc._id !== undefined) {
-      fs.writeFileSync(name + doc._id + '.bson', BSON.serialize(doc), {
-        encoding: null
-      });
-    }
+    fs.writeFileSync(name + doc._id + '.bson', BSON.serialize(doc), {
+      encoding: null
+    });
     return last === index ? next(null) : null;
   });
 }
