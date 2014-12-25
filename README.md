@@ -38,6 +38,7 @@ var backup = require('mongodb-backup');
  - `[tar]` - **String** Pack files into a .tar file *(default "disabled")*
  - `[query]` - **Object** Query that optionally limits the documents included *(default "{}")*
  - `[logger]` - **String** Path where save log file *(default "disabled")*
+ - `[metadata]` - **Boolean** Save metadata of collections as Index, ecc *(default "false")*
 
 ## Examples
 
