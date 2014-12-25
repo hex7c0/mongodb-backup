@@ -114,7 +114,7 @@ function toJson(name, docs, next) {
 
   var last = docs.length - 1;
   if (last < 0) {
-    return next();
+    return next(null);
   }
   docs.forEach(function(doc, index) {
 
@@ -140,7 +140,7 @@ function toBson(name, docs, next) {
 
   var last = docs.length - 1;
   if (last < 0) {
-    return next();
+    return next(null);
   }
   docs.forEach(function(doc, index) {
 
@@ -173,7 +173,7 @@ function allCollections(db, name, query, parser, next) {
     }
     var last = collections.length - 1;
     if (last < 0) {
-      return next();
+      return next(null);
     }
     collections.forEach(function(collection, index) {
 
@@ -190,7 +190,7 @@ function allCollections(db, name, query, parser, next) {
             if (err !== null) {
               return last === index ? next(err) : error(err);
             }
-            return last === index ? next() : null;
+            return last === index ? next(null) : null;
           });
         });
       });
@@ -213,7 +213,7 @@ function someCollections(db, name, query, parser, next, collections) {
 
   var last = collections.length - 1;
   if (last < 0) {
-    return next();
+    return next(null);
   }
   collections.forEach(function(collection, index) {
 
@@ -235,7 +235,7 @@ function someCollections(db, name, query, parser, next, collections) {
             if (err !== null) {
               return last === index ? next(err) : error(err);
             }
-            return last === index ? next() : null;
+            return last === index ? next(null) : null;
           });
         });
       });
