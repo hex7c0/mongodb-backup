@@ -141,11 +141,11 @@ function rmDir(path, next) {
  * JSON parser
  * 
  * @function toJson
- * @param {String} name - path of file
  * @param {Array} docs - documents from query
+ * @param {String} name - path of file
  * @param {Function} next - callback
  */
-function toJson(name, docs, next) {
+function toJson(docs, name, next) {
 
   var last = docs.length - 1;
   if (last < 0) {
@@ -165,11 +165,11 @@ function toJson(name, docs, next) {
  * BSON parser
  * 
  * @function toBson
- * @param {String} name - path of file
  * @param {Array} docs - documents from query
+ * @param {String} name - path of file
  * @param {Function} next - callback
  */
-function toBson(name, docs, next) {
+function toBson(docs, name, next) {
 
   var last = docs.length - 1;
   if (last < 0) {
@@ -221,7 +221,7 @@ function allCollections(db, name, query, metadata, parser, next) {
           if (err !== null) {
             return last === index ? next(err) : error(err);
           }
-          parser(name, docs, function(err) {
+          parser(docs, name, function(err) {
 
             if (err !== null) {
               return last === index ? next(err) : error(err);
@@ -268,7 +268,7 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
           if (err !== null) {
             return last === index ? next(err) : error(err);
           }
-          parser(name, docs, function(err) {
+          parser(docs, name, function(err) {
 
             if (err !== null) {
               return last === index ? next(err) : error(err);
