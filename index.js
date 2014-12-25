@@ -38,8 +38,7 @@ try {
  */
 function error(err) {
 
-  logger(err.message);
-  return;
+  return logger(err.message);
 }
 
 /**
@@ -125,9 +124,7 @@ function toJson(name, docs, next) {
         encoding: 'utf8'
       });
     }
-    if (last === index) {
-      next();
-    }
+    return last === index ? next() : null;
   });
 }
 
@@ -153,9 +150,7 @@ function toBson(name, docs, next) {
         encoding: null
       });
     }
-    if (last === index) {
-      next();
-    }
+    return last === index ? next() : null;
   });
 }
 
@@ -188,13 +183,14 @@ function allCollections(db, name, query, parser, next) {
         collection.find(query).toArray(function(err, docs) {
 
           if (err !== null) {
-            return error(err);
+            return last === index ? next(err) : error(err);
           }
-          parser(name, docs, function() {
+          parser(name, docs, function(err) {
 
-            if (last === index) {
-              next();
+            if (err !== null) {
+              return last === index ? next(err) : error(err);
             }
+            return last === index ? next() : null;
           });
         });
       });
@@ -232,13 +228,14 @@ function someCollections(db, name, query, parser, next, collections) {
         collection.find(query).toArray(function(err, docs) {
 
           if (err !== null) {
-            return error(err);
+            return last === index ? next(err) : error(err);
           }
-          parser(name, docs, function() {
+          parser(name, docs, function(err) {
 
-            if (last === index) {
-              next();
+            if (err !== null) {
+              return last === index ? next(err) : error(err);
             }
+            return last === index ? next() : null;
           });
         });
       });
@@ -261,16 +258,18 @@ function wrapper(my) {
       parser = toBson;
       break;
     case 'json':
-      // JSON error on id and Date
+      // JSON error on ObjectId and Date
       parser = toJson;
       break;
     default:
       throw new Error('missing parser option');
   }
+
   var discriminator = allCollections;
   if (my.collections !== null) {
     discriminator = someCollections;
   }
+
   if (my.logger === null) {
     logger = function() {
 
@@ -281,12 +280,13 @@ function wrapper(my) {
       filename: my.logger,
       standalone: true,
       winston: {
-        logger: '_mongodb',
+        logger: '_mongo_b',
         level: 'info'
       }
     });
     logger('backup start');
   }
+
   function callback() {
 
     logger('backup stop');
@@ -305,9 +305,9 @@ function wrapper(my) {
     var root = my.tar === null ? my.root : my.dir;
     makeDir(root, function(err, name) {
 
-      // waiting for `db.fsyncLock()` on node driver
       makeDir(name + db.databaseName + '/', function(err, name) {
 
+        // waiting for `db.fsyncLock()` on node driver
         discriminator(db, name, my.query, parser, function() {
 
           logger('db close');
