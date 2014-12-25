@@ -81,6 +81,7 @@ describe('data', function() {
             var second = fs.readdirSync(database);
             assert.equal(second.length, 2);
             assert.equal(second[1], 'logins');
+            fs.unlink(database + '/.metadata/' + second[1]);
             var collection = database + '/' + second[1];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
@@ -96,7 +97,6 @@ describe('data', function() {
             assert.equal(data._id, DOCS[_id]._id);
             assert.equal(data._id, DOCS[Object.keys(DOCS)[0]]._id);
             fs.unlinkSync(document);
-            fs.unlink(database + '/.metadata/' + second[1]);
             fs.rmdirSync(collection);
             fs.rmdirSync(database + '/.metadata/');
             fs.rmdirSync(database);
@@ -127,6 +127,7 @@ describe('data', function() {
             var second = fs.readdirSync(database);
             assert.equal(second.length, 2);
             assert.equal(second[1], 'logins');
+            fs.unlink(database + '/.metadata/' + second[1]);
             var collection = database + '/' + second[1];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
@@ -143,7 +144,6 @@ describe('data', function() {
             assert.deepEqual(data, DOCS[_id]);
             assert.equal(String(data._id), DOCS[Object.keys(DOCS)[0]]._id);
             fs.unlinkSync(document);
-            fs.unlink(database + '/.metadata/' + second[1]);
             fs.rmdirSync(collection);
             fs.rmdirSync(database + '/.metadata/');
             fs.rmdirSync(database);
@@ -175,6 +175,7 @@ describe('data', function() {
             var second = fs.readdirSync(database);
             assert.equal(second.length, 2);
             assert.equal(second[1], 'logins');
+            fs.unlink(database + '/.metadata/' + second[1]);
             var collection = database + '/' + second[1];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
@@ -191,7 +192,6 @@ describe('data', function() {
               assert.equal(data._id, DOCS[_id]._id);
               fs.unlinkSync(document);
             });
-            fs.unlink(database + '/.metadata/' + second[1]);
             fs.rmdirSync(collection);
             fs.rmdirSync(database + '/.metadata/');
             fs.rmdirSync(database);
@@ -219,6 +219,7 @@ describe('data', function() {
             var second = fs.readdirSync(database);
             assert.equal(second.length, 2);
             assert.equal(second[1], 'logins');
+            fs.unlink(database + '/.metadata/' + second[1]);
             var collection = database + '/' + second[1];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
@@ -236,7 +237,6 @@ describe('data', function() {
               assert.deepEqual(data, DOCS[_id]);
               fs.unlinkSync(document);
             });
-            fs.unlink(database + '/.metadata/' + second[1]);
             fs.rmdirSync(collection);
             fs.rmdirSync(database + '/.metadata/');
             fs.rmdirSync(database);
