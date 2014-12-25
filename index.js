@@ -250,7 +250,7 @@ function wrapper(my) {
   var parser;
   switch (my.parser) {
     case 'bson':
-      BSON = require('bson').BSONPure.BSON;
+      BSON = require('mongodb').pure().BSON;
       parser = toBson;
       break;
     case 'json':
