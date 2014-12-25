@@ -124,7 +124,7 @@ function toJson(name, docs, next) {
         encoding: 'utf8'
       });
     }
-    return last === index ? next() : null;
+    return last === index ? next(null) : null;
   });
 }
 
@@ -150,7 +150,7 @@ function toBson(name, docs, next) {
         encoding: null
       });
     }
-    return last === index ? next() : null;
+    return last === index ? next(null) : null;
   });
 }
 
