@@ -49,18 +49,21 @@ function error(err) {
  * @function writeMetadata
  * @param {Object} collection - db collection
  * @param {String} metadata - path of metadata
+ * @param {Function} next - callback
  */
-function writeMetadata(collection, metadata) {
+function writeMetadata(collection, metadata, next) {
 
   collection.indexes(function(err, index) {
 
     if (err !== null) {
-      return error(err);
+      error(err);
+      return next();
     }
     fs.writeFileSync(metadata + collection.collectionName, JSON
         .stringify(index), {
       encoding: 'utf8'
     });
+    next();
   });
 }
 
@@ -215,18 +218,20 @@ function allCollections(db, name, query, metadata, parser, next) {
       logger('select collection ' + collection.collectionName);
       makeDir(name + collection.collectionName + '/', function(err, name) {
 
-        meta(collection, metadata);
-        collection.find(query).toArray(function(err, docs) {
+        meta(collection, metadata, function() {
 
-          if (err !== null) {
-            return last === index ? next(err) : error(err);
-          }
-          parser(docs, name, function(err) {
+          collection.find(query).toArray(function(err, docs) {
 
             if (err !== null) {
               return last === index ? next(err) : error(err);
             }
-            return last === index ? next(null) : null;
+            parser(docs, name, function(err) {
+
+              if (err !== null) {
+                return last === index ? next(err) : error(err);
+              }
+              return last === index ? next(null) : null;
+            });
           });
         });
       });
@@ -262,18 +267,20 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
       }
       makeDir(name + collection.collectionName + '/', function(err, name) {
 
-        meta(collection, metadata);
-        collection.find(query).toArray(function(err, docs) {
+        meta(collection, metadata, function() {
 
-          if (err !== null) {
-            return last === index ? next(err) : error(err);
-          }
-          parser(docs, name, function(err) {
+          collection.find(query).toArray(function(err, docs) {
 
             if (err !== null) {
               return last === index ? next(err) : error(err);
             }
-            return last === index ? next(null) : null;
+            parser(docs, name, function(err) {
+
+              if (err !== null) {
+                return last === index ? next(err) : error(err);
+              }
+              return last === index ? next(null) : null;
+            });
           });
         });
       });
@@ -329,9 +336,9 @@ function wrapper(my) {
   if (my.metadata === true) {
     meta = writeMetadata;
   } else {
-    meta = function() {
+    meta = function(a, b, c) {
 
-      return;
+      return c();
     };
   }
 
