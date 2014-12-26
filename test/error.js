@@ -48,18 +48,49 @@ describe('error', function() {
     }
     done();
   });
-  it('should return missing root', function(done) {
 
-    var mex = 'missing root option';
-    try {
-      backup({
-        uri: 'ciao'
-      });
-    } catch (e) {
-      assert.equal(e.message, mex);
-    }
-    done();
+  describe('root', function() {
+
+    it('should return missing root', function(done) {
+
+      var mex = 'missing root option';
+      try {
+        backup({
+          uri: 'ciao'
+        });
+      } catch (e) {
+        assert.equal(e.message, mex);
+      }
+      done();
+    });
+    it('should return different error message (exists)', function(done) {
+
+      var mex = 'root option is not a directory';
+      try {
+        backup({
+          uri: 'ciao',
+          root: __dirname
+        });
+      } catch (e) {
+        assert.notEqual(e.message, mex);
+      }
+      done();
+    });
+    it('should return different error message (not file)', function(done) {
+
+      var mex = 'root option is not a directory';
+      try {
+        backup({
+          uri: 'ciao',
+          root: __dirname + '/error.js'
+        });
+      } catch (e) {
+        assert.equal(e.message, mex);
+      }
+      done();
+    });
   });
+
   it('should return parser root', function(done) {
 
     var mex = 'missing parser option';

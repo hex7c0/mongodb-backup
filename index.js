@@ -417,7 +417,10 @@ function backup(options) {
     throw new Error('missing uri option');
   } else if (!opt.root) {
     throw new Error('missing root option');
+  } else if (fs.existsSync(opt.root) && !fs.statSync(opt.root).isDirectory()) {
+    throw new Error('root option is not a directory');
   }
+
   var my = {
     dir: __dirname + '/dump/',
     uri: String(opt.uri),
