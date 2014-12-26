@@ -53,14 +53,14 @@ function error(err) {
  */
 function writeMetadata(collection, metadata, next) {
 
-  collection.indexes(function(err, index) {
+  collection.indexes(function(err, indexes) {
 
     if (err !== null) {
       error(err);
       return next();
     }
     fs.writeFileSync(metadata + collection.collectionName, JSON
-        .stringify(index), {
+        .stringify(indexes), {
       encoding: 'utf8'
     });
     next();
@@ -150,17 +150,17 @@ function rmDir(path, next) {
  */
 function toJson(docs, name, next) {
 
-  var last = docs.length - 1;
+  var last = docs.length - 1, index = 0;
   if (last < 0) {
     return next(null);
   }
-  docs.forEach(function(doc, index) {
+  docs.forEach(function(doc) {
 
     // no async. EMFILE error
     fs.writeFileSync(name + doc._id + '.json', JSON.stringify(doc), {
       encoding: 'utf8'
     });
-    return last === index ? next(null) : null;
+    return last === ++index ? next(null) : null;
   });
 }
 
@@ -174,17 +174,17 @@ function toJson(docs, name, next) {
  */
 function toBson(docs, name, next) {
 
-  var last = docs.length - 1;
+  var last = docs.length - 1, index = 0;
   if (last < 0) {
     return next(null);
   }
-  docs.forEach(function(doc, index) {
+  docs.forEach(function(doc) {
 
     // no async. EMFILE error
     fs.writeFileSync(name + doc._id + '.bson', BSON.serialize(doc), {
       encoding: null
     });
-    return last === index ? next(null) : null;
+    return last === ++index ? next(null) : null;
   });
 }
 
@@ -206,14 +206,14 @@ function allCollections(db, name, query, metadata, parser, next) {
     if (err !== null) {
       return error(err);
     }
-    var last = collections.length - 1;
+    var last = collections.length - 1, index = 0;
     if (last < 0) {
       return next(null);
     }
-    collections.forEach(function(collection, index) {
+    collections.forEach(function(collection) {
 
       if (/^system./.test(collection.collectionName) === true) {
-        return last === index ? next(null) : null;
+        return last === ++index ? next(null) : null;
       }
       logger('select collection ' + collection.collectionName);
       makeDir(name + collection.collectionName + '/', function(err, name) {
@@ -223,14 +223,14 @@ function allCollections(db, name, query, metadata, parser, next) {
           collection.find(query).toArray(function(err, docs) {
 
             if (err !== null) {
-              return last === index ? next(err) : error(err);
+              return last === ++index ? next(err) : error(err);
             }
             parser(docs, name, function(err) {
 
               if (err !== null) {
-                return last === index ? next(err) : error(err);
+                return last === ++index ? next(err) : error(err);
               }
-              return last === index ? next(null) : null;
+              return last === ++index ? next(null) : null;
             });
           });
         });
@@ -253,17 +253,17 @@ function allCollections(db, name, query, metadata, parser, next) {
  */
 function someCollections(db, name, query, metadata, parser, next, collections) {
 
-  var last = collections.length - 1;
+  var last = collections.length - 1, index = 0;
   if (last < 0) {
     return next(null);
   }
-  collections.forEach(function(collection, index) {
+  collections.forEach(function(collection) {
 
     db.collection(collection, function(err, collection) {
 
       logger('select collection ' + collection.collectionName);
       if (err !== null) {
-        return error(err);
+        return last === ++index ? next(err) : error(err);
       }
       makeDir(name + collection.collectionName + '/', function(err, name) {
 
@@ -272,14 +272,14 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
           collection.find(query).toArray(function(err, docs) {
 
             if (err !== null) {
-              return last === index ? next(err) : error(err);
+              return last === ++index ? next(err) : error(err);
             }
             parser(docs, name, function(err) {
 
               if (err !== null) {
-                return last === index ? next(err) : error(err);
+                return last === ++index ? next(err) : error(err);
               }
-              return last === index ? next(null) : null;
+              return last === ++index ? next(null) : null;
             });
           });
         });
