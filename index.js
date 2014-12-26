@@ -150,8 +150,8 @@ function rmDir(path, next) {
  */
 function toJson(docs, name, next) {
 
-  var last = docs.length - 1, index = 0;
-  if (last < 0) {
+  var last = docs.length, index = 0;
+  if (last < 1) {
     return next(null);
   }
   docs.forEach(function(doc) {
@@ -174,8 +174,8 @@ function toJson(docs, name, next) {
  */
 function toBson(docs, name, next) {
 
-  var last = docs.length - 1, index = 0;
-  if (last < 0) {
+  var last = docs.length, index = 0;
+  if (last < 1) {
     return next(null);
   }
   docs.forEach(function(doc) {
@@ -206,8 +206,8 @@ function allCollections(db, name, query, metadata, parser, next) {
     if (err !== null) {
       return error(err);
     }
-    var last = collections.length - 1, index = 0;
-    if (last < 0) {
+    var last = collections.length, index = 0;
+    if (last < 1) {
       return next(null);
     }
     collections.forEach(function(collection) {
@@ -253,8 +253,8 @@ function allCollections(db, name, query, metadata, parser, next) {
  */
 function someCollections(db, name, query, metadata, parser, next, collections) {
 
-  var last = collections.length - 1, index = 0;
-  if (last < 0) {
+  var last = collections.length, index = 0;
+  if (last < 1) {
     return next(null);
   }
   collections.forEach(function(collection) {
