@@ -325,6 +325,7 @@ function wrapper(my) {
     logger('backup start');
   }
 
+  var metadata = '';
   if (my.metadata === true) {
     meta = writeMetadata;
   } else {
@@ -381,7 +382,6 @@ function wrapper(my) {
             callback();
           }, my.collections);
         };
-        var metadata = '';
         if (my.metadata === false) {
           go();
         } else {
