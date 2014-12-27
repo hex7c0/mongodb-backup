@@ -19,8 +19,7 @@ try {
   var fs = require('fs');
   var resolve = require('path').resolve;
   // module
-  var mongo = require('mongodb');
-  var client = mongo.MongoClient;
+  var client = require('mongodb').MongoClient;
   var BSON;
   var logger;
   var meta;
@@ -302,7 +301,7 @@ function wrapper(my) {
   } else {
     switch (my.parser) {
       case 'bson':
-        BSON = mongo.pure().BSON;
+        BSON = require('bson').BSONPure.BSON;
         parser = toBson;
         break;
       case 'json':
