@@ -145,10 +145,10 @@ function rmDir(path, next) {
  * 
  * @function toJson
  * @param {Array} docs - documents from query
- * @param {String} name - path of file
+ * @param {String} collectionPath - path of collection
  * @param {Function} next - callback
  */
-function toJson(docs, name, next) {
+function toJson(docs, collectionPath, next) {
 
   var last = docs.length, index = 0;
   if (last < 1) {
@@ -157,7 +157,7 @@ function toJson(docs, name, next) {
   docs.forEach(function(doc) {
 
     // no async. EMFILE error
-    fs.writeFileSync(name + doc._id + '.json', JSON.stringify(doc), {
+    fs.writeFileSync(collectionPath + doc._id + '.json', JSON.stringify(doc), {
       encoding: 'utf8'
     });
     return last === ++index ? next(null) : null;
@@ -169,10 +169,10 @@ function toJson(docs, name, next) {
  * 
  * @function toBson
  * @param {Array} docs - documents from query
- * @param {String} name - path of file
+ * @param {String} collectionPath - path of collection
  * @param {Function} next - callback
  */
-function toBson(docs, name, next) {
+function toBson(docs, collectionPath, next) {
 
   var last = docs.length, index = 0;
   if (last < 1) {
@@ -181,7 +181,7 @@ function toBson(docs, name, next) {
   docs.forEach(function(doc) {
 
     // no async. EMFILE error
-    fs.writeFileSync(name + doc._id + '.bson', BSON.serialize(doc), {
+    fs.writeFileSync(collectionPath + doc._id + '.bson', BSON.serialize(doc), {
       encoding: null
     });
     return last === ++index ? next(null) : null;
@@ -297,17 +297,21 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
 function wrapper(my) {
 
   var parser;
-  switch (my.parser) {
-    case 'bson':
-      BSON = mongo.pure().BSON;
-      parser = toBson;
-      break;
-    case 'json':
-      // JSON error on ObjectId and Date
-      parser = toJson;
-      break;
-    default:
-      throw new Error('missing parser option');
+  if (typeof my.parser === 'function') {
+    parser = my.parser;
+  } else {
+    switch (my.parser) {
+      case 'bson':
+        BSON = mongo.pure().BSON;
+        parser = fromBson;
+        break;
+      case 'json':
+        // JSON error on ObjectId and Date
+        parser = fromJson;
+        break;
+      default:
+        throw new Error('missing parser option');
+    }
   }
 
   var discriminator = allCollections;
@@ -425,7 +429,7 @@ function backup(options) {
     dir: __dirname + '/dump/',
     uri: String(opt.uri),
     root: resolve(String(opt.root)) + '/',
-    parser: String(opt.parser || 'bson'),
+    parser: opt.parser || 'bson',
     collections: Array.isArray(opt.collections) ? opt.collections : null,
     callback: typeof (opt.callback) == 'function' ? opt.callback : null,
     tar: typeof opt.tar === 'string' ? opt.tar : null,
