@@ -33,7 +33,6 @@ describe('data', function() {
 
   var DOCS = {};
   var ROOT = __dirname + '/dump';
-  this.timeout(5000);
 
   describe('db query', function() {
 

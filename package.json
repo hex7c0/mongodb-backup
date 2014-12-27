@@ -40,7 +40,7 @@
   },
   "scripts": {
     "prepublish": "npm prune",
-    "test": "mocha --bail --check-leaks test/"
+    "test": "mocha --bail --check-leaks --timeout 5000 test/"
   },
   "license": "GPLv3"
 }
