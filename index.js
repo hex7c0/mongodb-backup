@@ -333,6 +333,12 @@ function wrapper(my) {
       }
     });
     logger('backup start');
+    var log = require('mongodb').Logger;
+    log.setLevel('info');
+    log.setCurrentLogger(function(msg) {
+
+      logger(msg);
+    });
   }
 
   var metadata = '';
