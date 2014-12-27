@@ -1,3 +1,10 @@
+1.0.0 / 2014-12-27
+==================
+
+  * Use mongodb logger
+  * Use `mongodb` 2
+  * Add "options" (options)
+
 0.2.0 / 2014-12-27
 ==================
 

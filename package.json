@@ -1,10 +1,11 @@
 {
-  "version": "0.2.0",
+  "version": "1.0.0",
   "name": "mongodb-backup",
   "description": "backup for mongodb",
   "keywords": [
     "mongodb",
-    "backup"
+    "backup",
+    "dump"
   ],
   "preferGlobal": false,
   "homepage": "http://supergiovane.tk/#/mongodb-backup",
