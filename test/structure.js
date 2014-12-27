@@ -238,10 +238,10 @@ describe('structure', function() {
 
   describe('logger', function() {
 
-    var path = 'l1.log';
+    var l = 'l1.log';
     it('should check that log file not exist before test', function(done) {
 
-      assert.equal(fs.existsSync(path), false);
+      assert.equal(fs.existsSync(l), false);
       done();
     });
     it('should make a log file', function(done) {
@@ -249,11 +249,11 @@ describe('structure', function() {
       backup({
         uri: URI,
         root: ROOT,
-        logger: 'l1.log',
+        logger: l,
         callback: function() {
 
-          assert.equal(fs.existsSync(path), true);
-          fs.unlink(path, function() {
+          assert.equal(fs.existsSync(l), true);
+          fs.unlink(l, function() {
 
             done();
           });

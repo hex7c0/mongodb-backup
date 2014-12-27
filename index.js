@@ -328,7 +328,7 @@ function wrapper(my) {
       filename: my.logger,
       standalone: true,
       winston: {
-        logger: '_mongo_b',
+        logger: '_mongo_r' + my.logger,
         level: 'info'
       }
     });
@@ -441,7 +441,7 @@ function backup(options) {
     query: typeof opt.query === 'object' ? opt.query : {},
     logger: typeof opt.logger === 'string' ? resolve(opt.logger) : null,
     metadata: Boolean(opt.metadata),
-    options: typeof opt.options === 'object' ? opt.options : {},
+    options: typeof opt.options === 'object' ? opt.options : {}
   };
   return wrapper(my);
 }
