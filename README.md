@@ -33,15 +33,16 @@ var backup = require('mongodb-backup');
 
 #### options
 
- - `uri` - **String** URI for MongoDb connection *(default "required")*
+ - `uri` - **String** [URI](http://mongodb.github.io/node-mongodb-native/2.0/tutorials/urls/) for MongoDb connection *(default "required")*
  - `root`- **String** Path where save data *(default "required")*
  - `[parser]` - **String | Function** Data parser (bson, json) or custom *(default "bson")*
  - `[collections]` - **Array** Select which collections save *(default "disabled")*
- - `[callback]` - **Function** Callback *(default "disabled")*
+ - `[callback]` - **Function** Callback when done *(default "disabled")*
  - `[tar]` - **String** Pack files into a .tar file *(default "disabled")*
  - `[query]` - **Object** Query that optionally limits the documents included *(default "{}")*
- - `[logger]` - **String** Path where save log file *(default "disabled")*
+ - `[logger]` - **String** Path where save a .log file *(default "disabled")*
  - `[metadata]` - **Boolean** Save metadata of collections as Index, ecc *(default "false")*
+ - `[options]` - **Object** MongoDb [options](http://mongodb.github.io/node-mongodb-native/2.0/tutorials/connecting/#toc_7) *(default)*
 
 ## Examples
 
