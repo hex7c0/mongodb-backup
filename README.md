@@ -35,7 +35,7 @@ var backup = require('mongodb-backup');
 
  - `uri` - **String** URI for MongoDb connection *(default "required")*
  - `root`- **String** Path where save data *(default "required")*
- - `[parser]` - **String** Data parser (bson, json) *(default "bson")*
+ - `[parser]` - **String | Function** Data parser (bson, json) or custom *(default "bson")*
  - `[collections]` - **Array** Select which collections save *(default "disabled")*
  - `[callback]` - **Function** Callback *(default "disabled")*
  - `[tar]` - **String** Pack files into a .tar file *(default "disabled")*
