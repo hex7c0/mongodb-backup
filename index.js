@@ -152,7 +152,7 @@ function toJson(docs, collectionPath, next) {
 
   var last = docs.length, index = 0;
   if (last < 1) {
-    return next(null);
+    return next();
   }
   docs.forEach(function(doc) {
 
@@ -160,7 +160,7 @@ function toJson(docs, collectionPath, next) {
     fs.writeFileSync(collectionPath + doc._id + '.json', JSON.stringify(doc), {
       encoding: 'utf8'
     });
-    return last === ++index ? next(null) : null;
+    return last === ++index ? next() : null;
   });
 }
 
@@ -176,7 +176,7 @@ function toBson(docs, collectionPath, next) {
 
   var last = docs.length, index = 0;
   if (last < 1) {
-    return next(null);
+    return next();
   }
   docs.forEach(function(doc) {
 
@@ -184,7 +184,7 @@ function toBson(docs, collectionPath, next) {
     fs.writeFileSync(collectionPath + doc._id + '.bson', BSON.serialize(doc), {
       encoding: null
     });
-    return last === ++index ? next(null) : null;
+    return last === ++index ? next() : null;
   });
 }
 
@@ -227,7 +227,7 @@ function allCollections(db, name, query, metadata, parser, next) {
             }
             parser(docs, name, function(err) {
 
-              if (err !== null) {
+              if (err) {
                 return last === ++index ? next(err) : error(err);
               }
               return last === ++index ? next(null) : null;
@@ -303,11 +303,11 @@ function wrapper(my) {
     switch (my.parser) {
       case 'bson':
         BSON = mongo.pure().BSON;
-        parser = fromBson;
+        parser = toBson;
         break;
       case 'json':
         // JSON error on ObjectId and Date
-        parser = fromJson;
+        parser = toJson;
         break;
       default:
         throw new Error('missing parser option');
