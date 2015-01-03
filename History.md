@@ -1,3 +1,9 @@
+1.0.1 / 2014-01-03
+==================
+
+  * Remove json formatter from logger
+  * Update `logger-request`@3.2.7
+
 1.0.0 / 2014-12-27
 ==================
 
