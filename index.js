@@ -1,10 +1,9 @@
 'use strict';
 /**
  * @file mongodb-backup main
- * @module mongodb-backup
  * @package mongodb-backup
  * @subpackage main
- * @version 0.2.0
+ * @version 1.0.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -14,19 +13,12 @@
  * initialize module
  */
 // import
-try {
-  // node
-  var fs = require('fs');
-  var resolve = require('path').resolve;
-  // module
-  var client = require('mongodb').MongoClient;
-  var BSON;
-  var logger;
-  var meta;
-} catch (MODULE_NOT_FOUND) {
-  console.error(MODULE_NOT_FOUND);
-  process.exit(1);
-}
+// node
+var fs = require('fs');
+// module
+var BSON;
+var logger;
+var meta;
 
 /*
  * functions
@@ -59,7 +51,7 @@ function writeMetadata(collection, metadata, next) {
       return next();
     }
     fs.writeFileSync(metadata + collection.collectionName, JSON
-        .stringify(indexes), {
+    .stringify(indexes), {
       encoding: 'utf8'
     });
     next();
@@ -361,7 +353,7 @@ function wrapper(my) {
     }
   }
 
-  client.connect(my.uri, my.options, function(err, db) {
+  require('mongodb').MongoClient.connect(my.uri, my.options, function(err, db) {
 
     logger('db open');
     if (err !== null) {
@@ -384,12 +376,12 @@ function wrapper(my) {
 
                 logger('make tar file at ' + name + my.tar);
                 var dest = fs.createWriteStream(name + my.tar);
-                var packer = require('tar').Pack().on('error', error)
-                    .on('end', function() {
+                var packer = require('tar').Pack().on('error', error).on('end',
+                  function() {
 
-                      rmDir(root);
-                      callback();
-                    });
+                    rmDir(root);
+                    callback();
+                  });
                 require('fstream').Reader({
                   path: root + db.databaseName,
                   type: 'Directory'
@@ -421,6 +413,8 @@ function wrapper(my) {
  * @param {Object} options - various options. Check README.md
  */
 function backup(options) {
+
+  var resolve = require('path').resolve;
 
   var opt = options || Object.create(null);
   if (!opt.uri) {
