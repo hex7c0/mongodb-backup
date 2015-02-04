@@ -1,8 +1,9 @@
 # [mongodb-backup](http://supergiovane.tk/#/mongodb-backup)
 
-[![NPM version](https://badge.fury.io/js/mongodb-backup.svg)](http://badge.fury.io/js/mongodb-backup)
-[![Build Status](https://travis-ci.org/hex7c0/mongodb-backup.svg)](https://travis-ci.org/hex7c0/mongodb-backup)
-[![Dependency Status](https://david-dm.org/hex7c0/mongodb-backup/status.svg)](https://david-dm.org/hex7c0/mongodb-backup)
+[![NPM version](https://img.shields.io/npm/v/mongodb-backup.svg)](https://www.npmjs.com/package/mongodb-backup)
+[![Linux Status](https://img.shields.io/travis/hex7c0/mongodb-backup.svg?label=linux)](https://travis-ci.org/hex7c0/mongodb-backup)
+[![Windows Status](https://img.shields.io/appveyor/ci/hex7c0/mongodb-backup.svg?label=windows)](https://ci.appveyor.com/project/hex7c0/mongodb-backup)
+[![Dependency Status](https://img.shields.io/david/hex7c0/mongodb-backup.svg)](https://david-dm.org/hex7c0/mongodb-backup)
 
 Backup for mongodb
 
@@ -46,6 +47,6 @@ var backup = require('mongodb-backup');
 
 ## Examples
 
-Take a look at my [examples](https://github.com/hex7c0/mongodb-backup/tree/master/examples)
+Take a look at my [examples](examples)
 
-### [License GPLv3](http://opensource.org/licenses/GPL-3.0)
+### [License GPLv3](LICENSE)

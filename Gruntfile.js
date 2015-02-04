@@ -13,13 +13,17 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     banner: '/*\n' + ' * <%= pkg.name %> v<%= pkg.version %>\n'
-        + ' * (c) <%= pkg.author.name %> <%= pkg.homepage %>\n'
-        + ' * Licensed under <%= pkg.license %>\n' + ' */\n',
+      + ' * (c) <%= pkg.author.name %> <%= pkg.homepage %>\n'
+      + ' * Licensed under <%= pkg.license %>\n' + ' */\n',
 
     clean: [ 'index.min.js', 'min/**/*.js' ],
 
     uglify: {
       target: {
+        options: {
+          mangle: false,
+          beautify: true
+        },
         files: [ {
           expand: true,
           src: 'lib/**/*.js',
@@ -45,7 +49,8 @@ module.exports = function(grunt) {
         node: true,
         // relax
         laxbreak: true,
-        loopfunc: true
+        loopfunc: true,
+        shadow: true
       },
       target: {
         src: [ 'lib/**/*.js', 'module/**/*.js', 'index.js' ]
