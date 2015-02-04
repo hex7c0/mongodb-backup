@@ -1,21 +1,17 @@
-.git*
-.project
-.jshintrc
-.jsdoc.json
-.settings
-.travis.yml
-.DS_Store
-
-*.log
-
+# Env configuration
+.*
+*.yml
 Gruntfile.js
 bower.json
 
+# Logs
+*.log
+
+# Repository directory
 examples/
-module/
-lib/
 test/
 
+# Modules directory
 node_modules/
 bower_components/
 tmp/
