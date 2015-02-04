@@ -3,11 +3,7 @@ sudo: false
 node_js:
   - "0.11"
   - "0.10"
-matrix:
-  allow_failures:
-    - node_js: "0.11"
-  fast_finish: true
-script: "npm run-script test"
+  - "iojs"
 notifications:
   email:
     on_success: never
