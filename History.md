@@ -1,3 +1,13 @@
+1.0.2 / 2014-02-06
+==================
+
+  * `windows` test
+  * `iojs` test
+  * Update `logger-request`@3.2.8
+  * Update `bson`@0.2.18
+  * Update `fstream`@1.0.4
+  * Update `mongodb`@2.0.15
+
 1.0.1 / 2014-01-03
 ==================
 
