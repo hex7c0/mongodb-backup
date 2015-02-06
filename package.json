@@ -38,11 +38,11 @@
     "grunt-endline": "~0.2"
   },
   "engines": {
-    "node": "^0.10"
+    "node": ">=0.10"
   },
   "scripts": {
     "prepublish": "npm prune",
-    "test": "mocha --bail --check-leaks --timeout 5000 test/"
+    "test": "mocha --bail --check-leaks --timeout 5000"
   },
   "license": "GPLv3"
 }
