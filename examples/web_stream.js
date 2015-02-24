@@ -12,7 +12,7 @@
  * initialize module
  */
 // import
-var backup = require('../index.js'); // use require('mongodb-backup') instead
+var backup = require('..'); // use require('mongodb-backup') instead
 
 /*
  * use
@@ -28,7 +28,7 @@ http.createServer(function(req, res) {
   backup({
     uri: 'uri', // mongodb://<dbuser>:<dbpassword>@<dbdomain>.mongolab.com:<dbport>/<dbdatabase>
     collections: [ 'logins' ],
-    tar: 'dump.tar',
+    tar: 'dump.tar', // just for enable tar
     stream: res
   });
 
