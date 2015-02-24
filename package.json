@@ -26,7 +26,7 @@
   "dependencies": {
     "bson": "0.2.18",
     "fstream": "1.0.4",
-    "mongodb": "2.0.15",
+    "mongodb": "2.0.16",
     "logger-request": "3.2.8",
     "tar": "1.0.3"
   },
