@@ -1,7 +1,7 @@
 'use strict';
 /**
  * @file mongodb-backup main
- * @package mongodb-backup
+ * @module mongodb-backup
  * @subpackage main
  * @version 1.0.0
  * @author hex7c0 <hex7c0@gmail.com>
@@ -13,9 +13,7 @@
  * initialize module
  */
 // import
-// node
 var fs = require('fs');
-// module
 var BSON;
 var logger;
 var meta;
@@ -374,31 +372,38 @@ function wrapper(my) {
             if (my.tar !== null) {
               return makeDir(my.root, function(err, name) {
 
-                logger('make tar file at ' + name + my.tar);
-                var dest = fs.createWriteStream(name + my.tar);
+                var dest;
+                if (my.stream !== null) {
+                  logger('send tar file to stream');
+                  dest = my.stream;
+                } else {
+                  logger('make tar file at ' + name + my.tar);
+                  dest = fs.createWriteStream(name + my.tar);
+                }
+
                 var packer = require('tar').Pack().on('error', error).on('end',
                   function() {
 
                     rmDir(root);
-                    callback();
+                    return callback();
                   });
-                require('fstream').Reader({
+
+                return require('fstream').Reader({
                   path: root + db.databaseName,
                   type: 'Directory'
                 }).on('error', error).pipe(packer).pipe(dest);
               });
             }
-            callback();
+
+            return callback();
           }, my.collections);
         };
+
         if (my.metadata === false) {
           go();
         } else {
           metadata = name + '.metadata/';
-          makeDir(metadata, function() {
-
-            go();
-          });
+          makeDir(metadata, go);
         }
       });
     });
@@ -419,24 +424,28 @@ function backup(options) {
   var opt = options || Object.create(null);
   if (!opt.uri) {
     throw new Error('missing uri option');
-  } else if (!opt.root) {
-    throw new Error('missing root option');
-  } else if (fs.existsSync(opt.root) && !fs.statSync(opt.root).isDirectory()) {
-    throw new Error('root option is not a directory');
+  }
+  if (!opt.stream) {
+    if (!opt.root) {
+      throw new Error('missing root option');
+    } else if (fs.existsSync(opt.root) && !fs.statSync(opt.root).isDirectory()) {
+      throw new Error('root option is not a directory');
+    }
   }
 
   var my = {
     dir: __dirname + '/dump/',
     uri: String(opt.uri),
-    root: resolve(String(opt.root)) + '/',
+    root: resolve(String(opt.root || '')) + '/',
+    stream: opt.stream || null,
     parser: opt.parser || 'bson',
     collections: Array.isArray(opt.collections) ? opt.collections : null,
     callback: typeof (opt.callback) == 'function' ? opt.callback : null,
     tar: typeof opt.tar === 'string' ? opt.tar : null,
     query: typeof opt.query === 'object' ? opt.query : {},
     logger: typeof opt.logger === 'string' ? resolve(opt.logger) : null,
-    metadata: Boolean(opt.metadata),
-    options: typeof opt.options === 'object' ? opt.options : {}
+    options: typeof opt.options === 'object' ? opt.options : {},
+    metadata: Boolean(opt.metadata)
   };
   return wrapper(my);
 }
