@@ -45,7 +45,8 @@
   },
   "scripts": {
     "prepublish": "npm prune",
-    "test": "mocha --bail --check-leaks --timeout 5000"
+    "test": "mocha --bail --check-leaks --timeout 5000",
+    "test-travis": "istanbul cover node_modules/mocha/bin/_mocha   --report lcovonly -- --timeout 5000"
   },
   "license": "GPLv3"
 }

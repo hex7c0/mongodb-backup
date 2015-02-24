@@ -7,11 +7,16 @@ bower.json
 # Logs
 *.log
 
+# Coverage directory used by tools like istanbul
+coverage/
+tmp/
+
 # Repository directory
 examples/
 test/
 
-# Modules directory
+# Dependency directory
+# Deployed apps should consider commenting this line out:
+# see https://npmjs.org/doc/faq.html#Should-I-check-my-node_modules-folder-into-git
 node_modules/
 bower_components/
-tmp/
