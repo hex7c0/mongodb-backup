@@ -429,7 +429,7 @@ function backup(options) {
   if (!opt.stream) {
     if (!opt.root) {
       throw new Error('missing root option');
-    } else if (!fs.existsSync(opt.root) || !fs.statSync(opt.root).isDirectory()) {
+    } else if (fs.existsSync(opt.root) && !fs.statSync(opt.root).isDirectory()) {
       throw new Error('root option is not a directory');
     }
   }
