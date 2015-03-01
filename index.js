@@ -44,7 +44,7 @@ function writeMetadata(collection, metadata, next) {
 
   collection.indexes(function(err, indexes) {
 
-    if (err !== null) {
+    if (err) {
       error(err);
       return next();
     }
@@ -65,20 +65,25 @@ function writeMetadata(collection, metadata, next) {
  */
 function makeDir(path, next) {
 
-  fs.stat(path, function(err, stats) {
+  return fs.stat(path, function(err, stats) {
 
-    if (err !== null && err.code === 'ENOENT') {
+    if (err && err.code === 'ENOENT') {
       logger('make dir at ' + path);
-      fs.mkdir(path, next(null, path));
-    } else if (stats !== undefined && stats.isDirectory() === false) {
-      logger('make dir at ' + path);
-      fs.unlink(path, function() {
+      return fs.mkdir(path, function(err) {
 
-        fs.mkdir(path, next(error(new Error('path was a file')), path));
+        return next(err, path);
       });
-    } else {
-      next(null, path);
+    } else if (stats && stats.isDirectory() === false) {
+      logger('make dir at ' + path);
+      return fs.unlink(path, function() {
+
+        return fs.mkdir(path, function(err) {
+
+          return next(error(err || new Error('path was a file')), path);
+        });
+      });
     }
+    return next(null, path);
   });
 }
 
@@ -112,7 +117,7 @@ function rmDir(path, next) {
       fs.readdirSync(collection).forEach(function(third) { // document
 
         var document = collection + '/' + third;
-        if (next !== undefined) {
+        if (next) {
           next(null, document);
         }
         fs.unlinkSync(document);
@@ -192,7 +197,7 @@ function allCollections(db, name, query, metadata, parser, next) {
 
   db.collections(function(err, collections) {
 
-    if (err !== null) {
+    if (err) {
       return error(err);
     }
     var last = collections.length, index = 0;
@@ -211,7 +216,7 @@ function allCollections(db, name, query, metadata, parser, next) {
 
           collection.find(query).toArray(function(err, docs) {
 
-            if (err !== null) {
+            if (err) {
               return last === ++index ? next(err) : error(err);
             }
             parser(docs, name, function(err) {
@@ -251,7 +256,7 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
     db.collection(collection, function(err, collection) {
 
       logger('select collection ' + collection.collectionName);
-      if (err !== null) {
+      if (err) {
         return last === ++index ? next(err) : error(err);
       }
       makeDir(name + collection.collectionName + '/', function(err, name) {
@@ -260,12 +265,12 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
 
           collection.find(query).toArray(function(err, docs) {
 
-            if (err !== null) {
+            if (err) {
               return last === ++index ? next(err) : error(err);
             }
             parser(docs, name, function(err) {
 
-              if (err !== null) {
+              if (err) {
                 return last === ++index ? next(err) : error(err);
               }
               return last === ++index ? next(null) : null;
@@ -354,7 +359,7 @@ function wrapper(my) {
   require('mongodb').MongoClient.connect(my.uri, my.options, function(err, db) {
 
     logger('db open');
-    if (err !== null) {
+    if (err) {
       return error(err);
     }
     var root = my.tar === null ? my.root : my.dir;
