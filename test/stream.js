@@ -50,8 +50,7 @@ describe('stream', function() {
           backup({
             collections: [ 'logins' ],
             uri: URI,
-            stream: res,
-            tar: 'dump.tar'
+            stream: res
           });
 
         });

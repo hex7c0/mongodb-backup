@@ -369,14 +369,15 @@ function wrapper(my) {
 
             logger('db close');
             db.close();
-            if (my.tar !== null) {
+
+            if (my.tar) {
               return makeDir(my.root, function(err, name) {
 
                 var dest;
-                if (my.stream !== null) {
+                if (my.stream) { // user stream
                   logger('send tar file to stream');
                   dest = my.stream;
-                } else {
+                } else { // filesystem stream
                   logger('make tar file at ' + name + my.tar);
                   dest = fs.createWriteStream(name + my.tar);
                 }
@@ -428,7 +429,7 @@ function backup(options) {
   if (!opt.stream) {
     if (!opt.root) {
       throw new Error('missing root option');
-    } else if (fs.existsSync(opt.root) && !fs.statSync(opt.root).isDirectory()) {
+    } else if (!fs.existsSync(opt.root) || !fs.statSync(opt.root).isDirectory()) {
       throw new Error('root option is not a directory');
     }
   }
@@ -447,6 +448,9 @@ function backup(options) {
     options: typeof opt.options === 'object' ? opt.options : {},
     metadata: Boolean(opt.metadata)
   };
+  if (my.stream) {
+    my.tar = true; // override
+  }
   return wrapper(my);
 }
 module.exports = backup;
