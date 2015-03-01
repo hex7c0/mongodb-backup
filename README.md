@@ -29,6 +29,8 @@ git clone git://github.com/hex7c0/mongodb-backup.git
 inside nodejs project
 ```js
 var backup = require('mongodb-backup');
+
+backup();
 ```
 
 ### backup(options)
@@ -40,6 +42,7 @@ var backup = require('mongodb-backup');
  - `[parser]` - **String | Function** Data parser (bson, json) or custom *(default "bson")*
  - `[collections]` - **Array** Select which collections save *(default "disabled")*
  - `[callback]` - **Function** Callback when done *(default "disabled")*
+ - `[stream]`- **Object** Send `.tar` file to Node stream *(default "disabled")*
  - `[tar]` - **String** Pack files into a .tar file *(default "disabled")*
  - `[query]` - **Object** Query that optionally limits the documents included *(default "{}")*
  - `[logger]` - **String** Path where save a .log file *(default "disabled")*
