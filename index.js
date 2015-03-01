@@ -74,12 +74,13 @@ function makeDir(path, next) {
         return next(err, path);
       });
     } else if (stats && stats.isDirectory() === false) {
-      logger('make dir at ' + path);
+      logger('unlink file at ' + path);
       return fs.unlink(path, function() {
 
+        logger('make dir at ' + path);
         return fs.mkdir(path, function(err) {
 
-          return next(error(err || new Error('path was a file')), path);
+          return next(err, path);
         });
       });
     }

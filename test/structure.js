@@ -194,10 +194,7 @@ describe('structure', function() {
         callback: function() {
 
           assert.equal(fs.existsSync(path), true);
-          fs.unlink(path, function() {
-
-            done();
-          });
+          fs.unlink(path, done);
         }
       });
     });
@@ -206,32 +203,6 @@ describe('structure', function() {
       var paths = __dirname + '/../dump';
       assert.equal(fs.existsSync(paths), true); // stay alive
       assert.equal(fs.readdirSync(paths).length, 0, 'empty dir');
-      done();
-    });
-    it('should remove dirs', function(done) {
-
-      fs.readdirSync(ROOT).forEach(function(first) { // database
-
-        var database = ROOT + '/' + first;
-        if (fs.statSync(database).isDirectory() === false) {
-          return;
-        }
-        fs.readdirSync(database).forEach(function(second) { // collection
-
-          var collection = database + '/' + second;
-          if (fs.statSync(collection).isDirectory() === false) {
-            return;
-          }
-          fs.readdirSync(collection).forEach(function(third) { // document
-
-            assert.equal(extname(third), '.bson');
-            var document = collection + '/' + third;
-            fs.unlinkSync(document);
-          });
-          fs.rmdirSync(collection);
-        });
-        fs.rmdirSync(database);
-      });
       done();
     });
   });
@@ -253,10 +224,7 @@ describe('structure', function() {
         callback: function() {
 
           assert.equal(fs.existsSync(l), true);
-          fs.unlink(l, function() {
-
-            done();
-          });
+          fs.unlink(l, done);
         }
       });
     });
