@@ -1,3 +1,12 @@
+1.1.0 / 2014-03-02
+==================
+
+  * Add "stream" (options)
+  * `coveralls` test
+  * Update `logger-request`@3.3.1
+  * Update `bson`@0.2.19
+  * Update `mongodb`@2.0.18
+
 1.0.2 / 2014-02-06
 ==================
 
