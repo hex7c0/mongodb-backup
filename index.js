@@ -12,7 +12,6 @@
 /*
  * initialize module
  */
-// import
 var fs = require('fs');
 var BSON;
 var logger;
