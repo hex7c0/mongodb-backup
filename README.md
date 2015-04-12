@@ -30,7 +30,10 @@ inside nodejs project
 ```js
 var backup = require('mongodb-backup');
 
-backup();
+backup({
+  uri: 'uri', // mongodb://<dbuser>:<dbpassword>@<dbdomain>.mongolab.com:<dbport>/<dbdatabase>
+  root: __dirname
+});
 ```
 
 ### backup(options)

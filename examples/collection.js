@@ -1,6 +1,6 @@
 'use strict';
 /**
- * @file login example
+ * @file collection example
  * @module mongodb-backup
  * @subpackage examples
  * @version 0.0.1
