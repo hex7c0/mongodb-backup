@@ -2,7 +2,6 @@
 /**
  * @file parser test
  * @module mongodb-backup
- * @package mongodb-backup
  * @subpackage test
  * @version 0.0.1
  * @author hex7c0 <hex7c0@gmail.com>
@@ -12,15 +11,9 @@
 /*
  * initialize module
  */
-// import
-try {
-  var backup = require('..');
-  var assert = require('assert');
-  var URI = process.env.URI;
-} catch (MODULE_NOT_FOUND) {
-  console.error(MODULE_NOT_FOUND);
-  process.exit(1);
-}
+var backup = require('..');
+var assert = require('assert');
+var URI = process.env.URI;
 
 /*
  * test module
@@ -35,7 +28,7 @@ describe('parser', function() {
     backup({
       uri: URI,
       root: ROOT,
-      collections: [ 'logins', 'auths' ],
+      collections: [ 'logins' ],
       parser: function(docs, name, next) {
 
         c++;

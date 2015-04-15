@@ -2,7 +2,6 @@
 /**
  * @file structure test
  * @module mongodb-backup
- * @package mongodb-backup
  * @subpackage test
  * @version 0.0.1
  * @author hex7c0 <hex7c0@gmail.com>
@@ -12,17 +11,11 @@
 /*
  * initialize module
  */
-// import
-try {
-  var backup = require('..');
-  var assert = require('assert');
-  var fs = require('fs');
-  var extname = require('path').extname;
-  var URI = process.env.URI;
-} catch (MODULE_NOT_FOUND) {
-  console.error(MODULE_NOT_FOUND);
-  process.exit(1);
-}
+var backup = require('..');
+var assert = require('assert');
+var fs = require('fs');
+var extname = require('path').extname;
+var URI = process.env.URI;
 
 /*
  * test module
@@ -38,7 +31,7 @@ describe('structure', function() {
       backup({
         uri: URI,
         root: ROOT,
-        collections: [ 'logins' ],
+        collections: [ 'logins', 'auths' ],
         parser: 'json',
         callback: function() {
 
@@ -49,8 +42,10 @@ describe('structure', function() {
               return;
             }
             var second = fs.readdirSync(database);
-            assert.equal(second.length, 1);
-            assert.equal(second[0], 'logins');
+            assert.equal(second.length, 2);
+            assert.equal(second[0], 'auths');
+            assert.equal(second[1], 'logins');
+
             var collection = database + '/' + second[0];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
@@ -62,6 +57,19 @@ describe('structure', function() {
               fs.unlinkSync(document);
             });
             fs.rmdirSync(collection);
+
+            var collection = database + '/' + second[1];
+            if (fs.statSync(collection).isDirectory() === false) {
+              return;
+            }
+            fs.readdirSync(collection).forEach(function(third) { // document
+
+              assert.equal(extname(third), '.json');
+              var document = collection + '/' + third;
+              fs.unlinkSync(document);
+            });
+            fs.rmdirSync(collection);
+
             fs.rmdirSync(database);
           });
           done();
@@ -73,7 +81,7 @@ describe('structure', function() {
       backup({
         uri: URI,
         root: ROOT,
-        collections: [ 'logins' ],
+        collections: [ 'logins', 'auths' ],
         parser: 'bson',
         callback: function() {
 
@@ -84,8 +92,10 @@ describe('structure', function() {
               return;
             }
             var second = fs.readdirSync(database);
-            assert.equal(second.length, 1);
-            assert.equal(second[0], 'logins');
+            assert.equal(second.length, 2);
+            assert.equal(second[0], 'auths');
+            assert.equal(second[1], 'logins');
+
             var collection = database + '/' + second[0];
             if (fs.statSync(collection).isDirectory() === false) {
               return;
@@ -97,6 +107,19 @@ describe('structure', function() {
               fs.unlinkSync(document);
             });
             fs.rmdirSync(collection);
+
+            var collection = database + '/' + second[1];
+            if (fs.statSync(collection).isDirectory() === false) {
+              return;
+            }
+            fs.readdirSync(collection).forEach(function(third) { // document
+
+              assert.equal(extname(third), '.bson');
+              var document = collection + '/' + third;
+              fs.unlinkSync(document);
+            });
+            fs.rmdirSync(collection);
+
             fs.rmdirSync(database);
           });
           done();
