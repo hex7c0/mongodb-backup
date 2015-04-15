@@ -35,7 +35,7 @@ describe('parser', function() {
     backup({
       uri: URI,
       root: ROOT,
-      collections: [ 'logins' ],
+      collections: [ 'logins', 'auths' ],
       parser: function(docs, name, next) {
 
         c++;
