@@ -48,7 +48,7 @@ describe('stream', function() {
           });
 
           backup({
-            collections: [ 'logins' ],
+            collections: [ 'logins', 'auths', 'wrong_name' ],
             uri: URI,
             stream: res
           });
@@ -84,7 +84,7 @@ describe('stream', function() {
       it('should make a tar file', function(done) {
 
         backup({
-          collections: [ 'logins' ],
+          collections: [ 'logins', 'auths', 'wrong_name' ],
           uri: URI,
           root: ROOT,
           tar: 'from_file.tar',
