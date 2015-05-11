@@ -25,7 +25,7 @@
   "main": "index.min.js",
   "dependencies": {
     "bson": "0.3.2",
-    "fstream": "1.0.4",
+    "fstream": "1.0.6",
     "mongodb": "2.0.31",
     "logger-request": "3.3.3",
     "tar": "2.1.1"
