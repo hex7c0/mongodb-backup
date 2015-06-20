@@ -1,3 +1,11 @@
+1.2.1 / 2014-06-20
+==================
+
+  * SPDX license
+  * Update `logger-request`@3.3.4
+  * Update `mongodb`@2.0.34
+  * Update `fstream`@1.0.7
+
 1.2.0 / 2014-05-12
 ==================
 
