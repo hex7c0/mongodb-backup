@@ -48,5 +48,5 @@
     "test": "mocha --bail --check-leaks --timeout 5000",
     "test-cov": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --timeout 5000"
   },
-  "license": "GPLv3"
+  "license": "GPL-3.0"
 }
