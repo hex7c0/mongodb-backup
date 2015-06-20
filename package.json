@@ -24,7 +24,7 @@
   },
   "main": "index.min.js",
   "dependencies": {
-    "bson": "0.3.2",
+    "bson": "0.4.6",
     "fstream": "1.0.6",
     "mongodb": "2.0.34",
     "logger-request": "3.3.3",
