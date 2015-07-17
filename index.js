@@ -296,7 +296,7 @@ function wrapper(my) {
   } else {
     switch (my.parser) {
       case 'bson':
-        BSON = require('bson').BSONPure.BSON;
+        BSON = new require('bson').BSONPure.BSON();
         parser = toBson;
         break;
       case 'json':
