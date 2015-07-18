@@ -12,14 +12,8 @@
 /*
  * initialize module
  */
-// import
-try {
-  var backup = require('..');
-  var assert = require('assert');
-} catch (MODULE_NOT_FOUND) {
-  console.error(MODULE_NOT_FOUND);
-  process.exit(1);
-}
+var backup = require('..');
+var assert = require('assert');
 
 /*
  * test module

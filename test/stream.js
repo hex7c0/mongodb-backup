@@ -11,7 +11,6 @@
 /*
  * initialize module
  */
-// import
 var backup = require('..');
 var assert = require('assert');
 var request = require('supertest');

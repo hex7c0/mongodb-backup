@@ -12,19 +12,14 @@
 /*
  * initialize module
  */
-// import
-try {
-  var backup = require('..');
-  var assert = require('assert');
-  var fs = require('fs');
-  var extname = require('path').extname;
-  var client = require('mongodb').MongoClient;
-  var BSON = require('bson').BSONPure.BSON;
-  var URI = process.env.URI;
-} catch (MODULE_NOT_FOUND) {
-  console.error(MODULE_NOT_FOUND);
-  process.exit(1);
-}
+var backup = require('..');
+var assert = require('assert');
+var fs = require('fs');
+var extname = require('path').extname;
+var client = require('mongodb').MongoClient;
+var BSON = require('bson');
+BSON = new BSON.BSONPure.BSON();
+var URI = process.env.URI;
 
 /*
  * test module
