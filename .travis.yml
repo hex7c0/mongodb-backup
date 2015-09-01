@@ -8,7 +8,8 @@ node_js:
   - "2.0"
   - "2.1"
   - "2.3"
-  - "iojs"
+  - "2.5"
+  - "3.0"
 notifications:
   email:
     on_success: never
