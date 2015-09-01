@@ -37,8 +37,8 @@
     "grunt-contrib-jshint": "~0.11",
     "grunt-endline": "~0.3",
     "istanbul": "~0.3",
-    "mocha": "~2.2",
-    "supertest": "~1.0"
+    "mocha": "~2.3",
+    "supertest": "~1.1"
   },
   "engines": {
     "node": ">=0.10"
