@@ -28,7 +28,7 @@
     "fstream": "1.0.7",
     "mongodb": "2.0.42",
     "logger-request": "3.4.0",
-    "tar": "2.1.1"
+    "tar": "2.2.0"
   },
   "devDependencies": {
     "coveralls": "~2.11",
