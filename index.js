@@ -41,17 +41,18 @@ function error(err) {
  */
 function writeMetadata(collection, metadata, next) {
 
-  collection.indexes(function(err, indexes) {
+  return collection.indexes(function(err, indexes) {
 
     if (err) {
       error(err);
       return next();
     }
+
     fs.writeFileSync(metadata + collection.collectionName, JSON
-    .stringify(indexes), {
+        .stringify(indexes), {
       encoding: 'utf8'
     });
-    next();
+    return next();
   });
 }
 
@@ -72,6 +73,7 @@ function makeDir(path, next) {
 
         return next(err, path);
       });
+
     } else if (stats && stats.isDirectory() === false) {
       logger('unlink file at ' + path);
       return fs.unlink(path, function() {
@@ -83,6 +85,7 @@ function makeDir(path, next) {
         });
       });
     }
+
     return next(null, path);
   });
 }
@@ -96,18 +99,20 @@ function makeDir(path, next) {
  */
 function rmDir(path, next) {
 
-  fs.readdirSync(path).forEach(function(first) { // database
+  return fs.readdirSync(path).forEach(function(first) { // database
 
     var database = path + first;
     if (fs.statSync(database).isDirectory() === false) {
       return;
     }
+
     var metadata = '';
     var collections = fs.readdirSync(database);
     if (fs.existsSync(database + '/.metadata') === true) {
       metadata = database + '/.metadata/';
       delete collections[collections.indexOf('.metadata')]; // undefined is not a dir
     }
+
     collections.forEach(function(second) { // collection
 
       var collection = database + '/' + second;
@@ -117,20 +122,20 @@ function rmDir(path, next) {
       fs.readdirSync(collection).forEach(function(third) { // document
 
         var document = collection + '/' + third;
-        if (next) {
-          next(null, document);
-        }
         fs.unlinkSync(document);
+        return next ? next(null, document) : '';
       });
+
       if (metadata !== '') {
         fs.unlinkSync(metadata + second);
       }
-      fs.rmdirSync(collection);
+      return fs.rmdirSync(collection);
     });
+
     if (metadata !== '') {
       fs.rmdirSync(metadata);
     }
-    fs.rmdirSync(database);
+    return fs.rmdirSync(database);
   });
 }
 
@@ -148,7 +153,8 @@ function toJson(docs, collectionPath, next) {
   if (last < 1) {
     return next();
   }
-  docs.forEach(function(doc) {
+
+  return docs.forEach(function(doc) {
 
     // no async. EMFILE error
     fs.writeFileSync(collectionPath + doc._id + '.json', JSON.stringify(doc), {
@@ -172,7 +178,8 @@ function toBson(docs, collectionPath, next) {
   if (last < 1) {
     return next();
   }
-  docs.forEach(function(doc) {
+
+  return docs.forEach(function(doc) {
 
     // no async. EMFILE error
     fs.writeFileSync(collectionPath + doc._id + '.bson', BSON.serialize(doc), {
@@ -204,31 +211,33 @@ function allCollections(db, name, query, metadata, parser, next) {
     if (last < 1) {
       return next(null);
     }
-    collections.forEach(function(collection) {
+
+    return collections.forEach(function(collection) {
 
       if (/^system./.test(collection.collectionName) === true) {
         return last === ++index ? next(null) : null;
       }
       logger('select collection ' + collection.collectionName);
-      makeDir(name + collection.collectionName + '/', function(err, name) {
+      return makeDir(name + collection.collectionName + '/',
+        function(err, name) {
 
-        meta(collection, metadata, function() {
+          return meta(collection, metadata, function() {
 
-          collection.find(query).toArray(function(err, docs) {
-
-            if (err) {
-              return last === ++index ? next(err) : error(err);
-            }
-            parser(docs, name, function(err) {
+            return collection.find(query).toArray(function(err, docs) {
 
               if (err) {
                 return last === ++index ? next(err) : error(err);
               }
-              return last === ++index ? next(null) : null;
+              return parser(docs, name, function(err) {
+
+                if (err) {
+                  return last === ++index ? next(err) : error(err);
+                }
+                return last === ++index ? next(null) : null;
+              });
             });
           });
         });
-      });
     });
   });
 }
@@ -251,33 +260,35 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
   if (last < 1) {
     return next(null);
   }
-  collections.forEach(function(collection) {
 
-    db.collection(collection, function(err, collection) {
+  return collections.forEach(function(collection) {
+
+    return db.collection(collection, function(err, collection) {
 
       logger('select collection ' + collection.collectionName);
       if (err) {
         return last === ++index ? next(err) : error(err);
       }
-      makeDir(name + collection.collectionName + '/', function(err, name) {
+      return makeDir(name + collection.collectionName + '/',
+        function(err, name) {
 
-        meta(collection, metadata, function() {
+          return meta(collection, metadata, function() {
 
-          collection.find(query).toArray(function(err, docs) {
-
-            if (err) {
-              return last === ++index ? next(err) : error(err);
-            }
-            parser(docs, name, function(err) {
+            return collection.find(query).toArray(function(err, docs) {
 
               if (err) {
                 return last === ++index ? next(err) : error(err);
               }
-              return last === ++index ? next(null) : null;
+              return parser(docs, name, function(err) {
+
+                if (err) {
+                  return last === ++index ? next(err) : error(err);
+                }
+                return last === ++index ? next(null) : null;
+              });
             });
           });
         });
-      });
     });
   });
 }
@@ -324,7 +335,7 @@ function wrapper(my) {
       filename: my.logger,
       standalone: true,
       winston: {
-        logger: '_mongo_r' + my.logger,
+        logger: '_mongo_b' + my.logger,
         level: 'info',
         json: false
       }
@@ -334,7 +345,7 @@ function wrapper(my) {
     log.setLevel('info');
     log.setCurrentLogger(function(msg) {
 
-      logger(msg);
+      return logger(msg);
     });
   }
 
@@ -355,66 +366,77 @@ function wrapper(my) {
       logger('callback run');
       my.callback();
     }
+    return;
   }
 
-  require('mongodb').MongoClient.connect(my.uri, my.options, function(err, db) {
+  return require('mongodb').MongoClient.connect(my.uri, my.options,
+    function(err, db) {
 
-    logger('db open');
-    if (err) {
-      return error(err);
-    }
-    var root = my.tar === null ? my.root : my.dir;
-    makeDir(root, function(err, name) {
+      logger('db open');
+      if (err) {
+        return error(err);
+      }
 
-      makeDir(name + db.databaseName + '/', function(err, name) {
+      var root = my.tar === null ? my.root : my.dir;
+      makeDir(root, function(err, name) {
 
-        var go = function() {
+        makeDir(name + db.databaseName + '/', function(err, name) {
 
-          // waiting for `db.fsyncLock()` on node driver
-          discriminator(db, name, my.query, metadata, parser, function() {
+          function go() {
 
-            logger('db close');
-            db.close();
+            // waiting for `db.fsyncLock()` on node driver
+            return discriminator(db, name, my.query, metadata, parser,
+              function(err) {
 
-            if (my.tar) {
-              return makeDir(my.root, function(err, name) {
+                if (err) {
+                  error(err);
+                }
+                logger('db close');
+                db.close();
 
-                var dest;
-                if (my.stream) { // user stream
-                  logger('send tar file to stream');
-                  dest = my.stream;
-                } else { // filesystem stream
-                  logger('make tar file at ' + name + my.tar);
-                  dest = fs.createWriteStream(name + my.tar);
+                if (my.tar) {
+                  return makeDir(my.root, function(err, name) {
+
+                    if (err) {
+                      error(err);
+                    }
+                    var dest;
+                    if (my.stream) { // user stream
+                      logger('send tar file to stream');
+                      dest = my.stream;
+                    } else { // filesystem stream
+                      logger('make tar file at ' + name + my.tar);
+                      dest = fs.createWriteStream(name + my.tar);
+                    }
+
+                    var packer = require('tar').Pack().on('error', error).on(
+                      'end', function() {
+
+                        rmDir(root);
+                        return callback();
+                      });
+
+                    return require('fstream').Reader({
+                      path: root + db.databaseName,
+                      type: 'Directory'
+                    }).on('error', error).pipe(packer).pipe(dest);
+                  });
                 }
 
-                var packer = require('tar').Pack().on('error', error).on('end',
-                  function() {
+                return callback();
+              }, my.collections);
+          }
 
-                    rmDir(root);
-                    return callback();
-                  });
-
-                return require('fstream').Reader({
-                  path: root + db.databaseName,
-                  type: 'Directory'
-                }).on('error', error).pipe(packer).pipe(dest);
-              });
-            }
-
-            return callback();
-          }, my.collections);
-        };
-
-        if (my.metadata === false) {
-          go();
-        } else {
-          metadata = name + '.metadata/';
-          makeDir(metadata, go);
-        }
+          if (my.metadata === false) {
+            go();
+          } else {
+            metadata = name + '.metadata/';
+            makeDir(metadata, go);
+          }
+          return;
+        });
       });
     });
-  });
 }
 
 /**
