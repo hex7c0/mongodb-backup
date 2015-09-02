@@ -18,6 +18,6 @@ var backup = require('..'); // use require('mongodb-backup') instead
  */
 backup({
   uri: 'uri', // mongodb://<dbuser>:<dbpassword>@<dbdomain>.mongolab.com:<dbport>/<dbdatabase>
-  root: __dirname,
-  collections: [ 'logins' ]
+  root: __dirname, // write files into this dir
+  collections: [ 'logins' ], // save this collection only
 });
