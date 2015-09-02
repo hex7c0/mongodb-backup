@@ -3,7 +3,7 @@
  * @file mongodb-backup main
  * @module mongodb-backup
  * @subpackage main
- * @version 1.2.0
+ * @version 1.3.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3

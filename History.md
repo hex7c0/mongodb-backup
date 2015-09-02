@@ -1,3 +1,12 @@
+1.3.0 / 2014-08-02
+==================
+
+  * Tested with `iojs`@3
+  * Update `logger-request`@3.4.0
+  * Update `mongodb`@2.0.42
+  * Update `bson`@0.4.11
+  * Update `tar`@2.2.0
+
 1.2.2 / 2014-07-18
 ==================
 
