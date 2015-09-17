@@ -1,3 +1,12 @@
+1.4.1 / 2014-09-17
+==================
+
+  * Bump minor version for sync with `mongodb-restore`
+  * Tested with `node`@4
+  * Update `mongodb`@2.0.43
+  * Update `fstream`@1.0.8
+  * Update `tar`@2.2.1
+
 1.3.0 / 2014-09-02
 ==================
 
