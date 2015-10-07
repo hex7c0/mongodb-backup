@@ -1,4 +1,4 @@
-# [mongodb-backup](http://supergiovane.tk/#/mongodb-backup)
+# [mongodb-backup](https://github.com/hex7c0/mongodb-backup)
 
 [![NPM version](https://img.shields.io/npm/v/mongodb-backup.svg)](https://www.npmjs.com/package/mongodb-backup)
 [![Linux Status](https://img.shields.io/travis/hex7c0/mongodb-backup.svg?label=linux)](https://travis-ci.org/hex7c0/mongodb-backup)
@@ -23,6 +23,8 @@ or
 ```bash
 git clone git://github.com/hex7c0/mongodb-backup.git
 ```
+
+Bson@0.4.11 has been pulled out, so versions >= `1.3.0` and <= `1.4.1` are deprecate
 
 ## API
 

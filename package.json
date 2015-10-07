@@ -1,5 +1,5 @@
 {
-  "version": "1.4.1",
+  "version": "1.4.2",
   "name": "mongodb-backup",
   "description": "backup for mongodb",
   "keywords": [
@@ -8,7 +8,7 @@
     "dump"
   ],
   "preferGlobal": false,
-  "homepage": "http://supergiovane.tk/#/mongodb-backup",
+  "homepage": "http://supergiovane.tk/#/mongodb-restore",
   "author": {
     "name": "hex7c0",
     "email": "hex7c0@gmail.com",
