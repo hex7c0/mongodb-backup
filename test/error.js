@@ -2,7 +2,6 @@
 /**
  * @file error test
  * @module mongodb-backup
- * @package mongodb-backup
  * @subpackage test
  * @version 0.0.1
  * @author hex7c0 <hex7c0@gmail.com>
@@ -34,6 +33,31 @@ describe('error', function() {
     assert.throws(function() {
 
       backup({
+        root: 'ciao'
+      });
+    }, mex);
+    done();
+  });
+  it('should return parser root', function(done) {
+
+    var mex = /missing parser option/;
+    assert.throws(function() {
+
+      backup({
+        uri: 'ciao',
+        root: 'ciao',
+        parser: 'ciao'
+      });
+    }, mex);
+    done();
+  });
+  it('should return wrong uri', function(done) {
+
+    var mex = /invalid schema, expected mongodb/;
+    assert.throws(function() {
+
+      backup({
+        uri: 'ciao',
         root: 'ciao'
       });
     }, mex);
@@ -77,31 +101,5 @@ describe('error', function() {
       }, mex);
       done();
     });
-  });
-
-  it('should return parser root', function(done) {
-
-    var mex = /missing parser option/;
-    assert.throws(function() {
-
-      backup({
-        uri: 'ciao',
-        root: 'ciao',
-        parser: 'ciao'
-      });
-    }, mex);
-    done();
-  });
-  it('should return wrong uri', function(done) {
-
-    var mex = /invalid schema, expected mongodb/;
-    assert.throws(function() {
-
-      backup({
-        uri: 'ciao',
-        root: 'ciao'
-      });
-    }, mex);
-    done();
   });
 });
