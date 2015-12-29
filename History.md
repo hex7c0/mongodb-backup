@@ -1,3 +1,9 @@
+v1.5.0 / 2014-12-29
+==================
+
+  * Versions 1.4.x will be release under `stable` tag
+  * Update `mongodb`@2.1.2
+
 v1.4.4 / 2014-12-27
 ==================
 
