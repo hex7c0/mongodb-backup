@@ -4,18 +4,18 @@ v1.5.1 / 2016-01-04
   * Tested against `node`@5.3
   * Update `mongodb`@2.1.3
 
-v1.5.0 / 2014-12-29
+v1.5.0 / 2015-12-29
 ==================
 
   * Versions 1.4.x will be release under `stable` tag
   * Update `mongodb`@2.1.2
 
-v1.4.4 / 2014-12-27
+v1.4.4 / 2015-12-27
 ==================
 
   * Update `mongodb`@2.0.53
 
-v1.4.3 / 2014-12-15
+v1.4.3 / 2015-12-15
 ==================
 
   * Tested against `node`@5
@@ -23,13 +23,13 @@ v1.4.3 / 2014-12-15
   * Update `mongodb`@2.0.52
   * Update `bson`@0.4.20
 
-v1.4.2 / 2014-10-07
+v1.4.2 / 2015-10-07
 ==================
 
   * Update `mongodb`@2.0.45
   * Update `bson`@0.4.16
 
-v1.4.1 / 2014-09-17
+v1.4.1 / 2015-09-17
 ==================
 
   * Bump minor version for sync with `mongodb-restore`
@@ -38,7 +38,7 @@ v1.4.1 / 2014-09-17
   * Update `fstream`@1.0.8
   * Update `tar`@2.2.1
 
-v1.3.0 / 2014-09-02
+v1.3.0 / 2015-09-02
 ==================
 
   * Tested against `iojs`@3
@@ -47,14 +47,14 @@ v1.3.0 / 2014-09-02
   * Update `bson`@0.4.11
   * Update `tar`@2.2.0
 
-v1.2.2 / 2014-07-18
+v1.2.2 / 2015-07-18
 ==================
 
   * Update `logger-request`@3.3.5
   * Update `mongodb`@2.0.39
   * Update `bson`@0.4.8
 
-v1.2.1 / 2014-06-20
+v1.2.1 / 2015-06-20
 ==================
 
   * SPDX license
@@ -62,7 +62,7 @@ v1.2.1 / 2014-06-20
   * Update `mongodb`@2.0.34
   * Update `fstream`@1.0.7
 
-v1.2.0 / 2014-05-12
+v1.2.0 / 2015-05-12
 ==================
 
   * Tested against `iojs`@2
@@ -72,7 +72,7 @@ v1.2.0 / 2014-05-12
   * Update `mongodb`@2.0.31
   * Update `fstream`@1.0.6
 
-v1.1.1 / 2014-04-12
+v1.1.1 / 2015-04-12
 ==================
 
   * Update `tar`@2.0.1
@@ -80,7 +80,7 @@ v1.1.1 / 2014-04-12
   * Update `bson`@0.3.1
   * Update `mongodb`@2.0.27
 
-v1.1.0 / 2014-03-02
+v1.1.0 / 2015-03-02
 ==================
 
   * Add "stream" (options)
@@ -89,7 +89,7 @@ v1.1.0 / 2014-03-02
   * Update `bson`@0.2.19
   * Update `mongodb`@2.0.18
 
-v1.0.2 / 2014-02-06
+v1.0.2 / 2015-02-06
 ==================
 
   * `windows` test
@@ -99,7 +99,7 @@ v1.0.2 / 2014-02-06
   * Update `fstream`@1.0.4
   * Update `mongodb`@2.0.15
 
-v1.0.1 / 2014-01-03
+v1.0.1 / 2015-01-03
 ==================
 
   * Remove json formatter from logger
