@@ -9,6 +9,7 @@ node_js:
   - "4.0"
   - "4.2"
   - "5.0"
+  - "5.3"
 notifications:
   email:
     on_success: never
