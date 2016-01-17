@@ -1,3 +1,10 @@
+v1.5.2 / 2016-01-17
+==================
+
+  * Added test for Long datatype
+  * Update `bson`@0.4.21
+  * Update `mongodb`@2.1.4
+
 v1.5.1 / 2016-01-04
 ==================
 
