@@ -468,7 +468,7 @@ describe('structure', function() {
 
     describe('tar', function() {
 
-      var path = ROOT + '/t1.tar';
+      var path = ROOT + '/t2.tar';
       it('should check that tar file not exist before test', function(done) {
 
         assert.equal(fs.existsSync(path), false);
@@ -479,7 +479,7 @@ describe('structure', function() {
         backup({
           uri: URI,
           root: ROOT,
-          tar: 't1.tar',
+          tar: 't2.tar',
           numCursors: 2,
           callback: function() {
 
@@ -499,7 +499,7 @@ describe('structure', function() {
 
     describe('logger', function() {
 
-      var l = 'l1.log';
+      var l = 'l2.log';
       it('should check that log file not exist before test', function(done) {
 
         assert.equal(fs.existsSync(l), false);
