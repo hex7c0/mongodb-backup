@@ -191,7 +191,7 @@ function toBson(docs, collectionPath, next) {
 }
 
 /**
- * get data from all collections available
+ * get data from all available collections
  * 
  * @function allCollections
  * @param {Object} db - database
@@ -203,7 +203,7 @@ function toBson(docs, collectionPath, next) {
  */
 function allCollections(db, name, query, metadata, parser, next) {
 
-  db.collections(function(err, collections) {
+  return db.collections(function(err, collections) {
 
     if (err) {
       return error(err);
@@ -239,6 +239,71 @@ function allCollections(db, name, query, metadata, parser, next) {
                   return last === ++index ? next(null) : null;
                 });
               });
+          });
+        });
+    });
+  });
+}
+
+/**
+ * get data from all available collections without query (parallelCollectionScan)
+ * 
+ * @function allCollectionsScan
+ * @param {Object} db - database
+ * @param {String} name - path of dir
+ * @param {Integer} numCursors - number of multiple cursors [1:10000]
+ * @param {String} metadata - path of metadata
+ * @param {Function} parser - data parser
+ * @param {Function} next - callback
+ */
+function allCollectionsScan(db, name, numCursors, metadata, parser, next) {
+
+  return db.collections(function(err, collections) {
+
+    if (err) {
+      return error(err);
+    }
+    var last = collections.length, index = 0;
+    if (last < 1) {
+      return next(null);
+    }
+
+    return collections.forEach(function(collection) {
+
+      if (systemRegex.test(collection.collectionName) === true) {
+        return last === ++index ? next(null) : null;
+      }
+
+      logger('select collection scan ' + collection.collectionName);
+      return makeDir(name + collection.collectionName + '/',
+        function(err, name) {
+
+          return meta(collection, metadata, function() {
+
+            return collection.parallelCollectionScan({
+              numCursors: numCursors
+            }, function(err, cursors) {
+
+              var left = cursors.length;
+              if (left === 0) {
+                return last === ++index ? next(null) : null;
+              }
+              for (var i = 0; i < left; ++i) {
+                cursors[i].toArray(function(err, docs) {
+
+                  if (err) {
+                    return last === ++index ? next(err) : error(err);
+                  }
+                  return parser(docs, name, function(err) {
+
+                    if (err) {
+                      return last === ++index ? next(err) : error(err);
+                    }
+                    return last === ++index ? next(null) : null;
+                  });
+                });
+              }
+            });
           });
         });
     });
@@ -298,6 +363,69 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
 }
 
 /**
+ * get data from some collections without query (parallelCollectionScan)
+ * 
+ * @function someCollectionsScan
+ * @param {Object} db - database
+ * @param {String} name - path of dir
+ * @param {Integer} numCursors - number of multiple cursors [1:10000]
+ * @param {String} metadata - path of metadata
+ * @param {Function} parser - data parser
+ * @param {Function} next - callback
+ * @param {Array} collections - selected collections
+ */
+function someCollectionsScan(db, name, numCursors, metadata, parser, next,
+                             collections) {
+
+  var last = collections.length, index = 0;
+  if (last < 1) {
+    return next(null);
+  }
+
+  return collections.forEach(function(collection) {
+
+    return db.collection(collection, function(err, collection) {
+
+      logger('select collection scan ' + collection.collectionName);
+      if (err) {
+        return last === ++index ? next(err) : error(err);
+      }
+      return makeDir(name + collection.collectionName + '/',
+        function(err, name) {
+
+          return meta(collection, metadata, function() {
+
+            return collection.parallelCollectionScan({
+              numCursors: numCursors
+            }, function(err, cursors) {
+
+              var left = cursors.length;
+              if (left === 0) {
+                return last === ++index ? next(null) : null;
+              }
+              for (var i = 0; i < left; ++i) {
+                cursors[i].toArray(function(err, docs) {
+
+                  if (err) {
+                    return last === ++index ? next(err) : error(err);
+                  }
+                  return parser(docs, name, function(err) {
+
+                    if (err) {
+                      return last === ++index ? next(err) : error(err);
+                    }
+                    return last === ++index ? next(null) : null;
+                  });
+                });
+              }
+            });
+          });
+        });
+    });
+  });
+}
+
+/**
  * function wrapper
  * 
  * @function wrapper
@@ -316,7 +444,7 @@ function wrapper(my) {
         parser = toBson;
         break;
       case 'json':
-        // JSON error on ObjectId and Date
+        // JSON error on ObjectId, Date and Long
         parser = toJson;
         break;
       default:
@@ -327,6 +455,13 @@ function wrapper(my) {
   var discriminator = allCollections;
   if (my.collections !== null) {
     discriminator = someCollections;
+    if (my.numCursors) {
+      discriminator = someCollectionsScan;
+      my.query = my.numCursors; // override
+    }
+  } else if (my.numCursors) {
+    discriminator = allCollectionsScan;
+    my.query = my.numCursors; // override
   }
 
   if (my.logger === null) {
@@ -472,6 +607,7 @@ function backup(options) {
     root: resolve(String(opt.root || '')) + '/',
     stream: opt.stream || null,
     parser: opt.parser || 'bson',
+    numCursors: ~~opt.numCursors,
     collections: Array.isArray(opt.collections) ? opt.collections : null,
     callback: typeof (opt.callback) == 'function' ? opt.callback : null,
     tar: typeof opt.tar === 'string' ? opt.tar : null,
