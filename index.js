@@ -12,6 +12,7 @@
 /*
  * initialize module
  */
+var systemRegex = /^system\./;
 var fs = require('fs');
 var BSON;
 var logger;
@@ -214,9 +215,10 @@ function allCollections(db, name, query, metadata, parser, next) {
 
     return collections.forEach(function(collection) {
 
-      if (/^system./.test(collection.collectionName) === true) {
+      if (systemRegex.test(collection.collectionName) === true) {
         return last === ++index ? next(null) : null;
       }
+
       logger('select collection ' + collection.collectionName);
       return makeDir(name + collection.collectionName + '/',
         function(err, name) {
