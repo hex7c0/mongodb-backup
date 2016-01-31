@@ -225,19 +225,20 @@ function allCollections(db, name, query, metadata, parser, next) {
 
           return meta(collection, metadata, function() {
 
-            return collection.find(query).toArray(function(err, docs) {
-
-              if (err) {
-                return last === ++index ? next(err) : error(err);
-              }
-              return parser(docs, name, function(err) {
+            return collection.find(query).snapshot(true).toArray(
+              function(err, docs) {
 
                 if (err) {
                   return last === ++index ? next(err) : error(err);
                 }
-                return last === ++index ? next(null) : null;
+                return parser(docs, name, function(err) {
+
+                  if (err) {
+                    return last === ++index ? next(err) : error(err);
+                  }
+                  return last === ++index ? next(null) : null;
+                });
               });
-            });
           });
         });
     });
@@ -276,19 +277,20 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
 
           return meta(collection, metadata, function() {
 
-            return collection.find(query).toArray(function(err, docs) {
-
-              if (err) {
-                return last === ++index ? next(err) : error(err);
-              }
-              return parser(docs, name, function(err) {
+            return collection.find(query).snapshot(true).toArray(
+              function(err, docs) {
 
                 if (err) {
                   return last === ++index ? next(err) : error(err);
                 }
-                return last === ++index ? next(null) : null;
+                return parser(docs, name, function(err) {
+
+                  if (err) {
+                    return last === ++index ? next(err) : error(err);
+                  }
+                  return last === ++index ? next(null) : null;
+                });
               });
-            });
           });
         });
     });
