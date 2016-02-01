@@ -50,6 +50,7 @@ backup({
  - `[stream]`- **Object** Send `.tar` file to Node stream *(default "disabled")*
  - `[tar]` - **String** Pack files into a .tar file *(default "disabled")*
  - `[query]` - **Object** Query that optionally limits the documents included *(default "{}")*
+ - `[numCursors]` - **Number** Set number of cursor for [parallelCollectionScan](https://docs.mongodb.org/v3.0/reference/command/parallelCollectionScan) without of query *(default "disabled")*
  - `[logger]` - **String** Path where save a .log file *(default "disabled")*
  - `[metadata]` - **Boolean** Save metadata of collections as Index, ecc *(default "false")*
  - `[options]` - **Object** MongoDb [options](http://mongodb.github.io/node-mongodb-native/2.0/tutorials/connecting/#toc_7) *(default)*
