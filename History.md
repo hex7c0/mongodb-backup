@@ -1,3 +1,10 @@
+v1.5.3 / 2016-02-01
+==================
+
+  * Added "numCursors" (options)
+  * Added support for `parallelCollectionScan`
+  * Use `snapshot` when use query for retrieve data
+
 v1.5.2 / 2016-01-17
 ==================
 
