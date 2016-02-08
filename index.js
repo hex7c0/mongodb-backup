@@ -46,14 +46,14 @@ function writeMetadata(collection, metadata, next) {
 
     if (err) {
       error(err);
-      return next();
+      return next(null);
     }
 
     fs.writeFileSync(metadata + collection.collectionName, JSON
         .stringify(indexes), {
       encoding: 'utf8'
     });
-    return next();
+    return next(null);
   });
 }
 
@@ -152,7 +152,7 @@ function toJson(docs, collectionPath, next) {
 
   var last = docs.length, index = 0;
   if (last < 1) {
-    return next();
+    return next(null);
   }
 
   return docs.forEach(function(doc) {
@@ -161,7 +161,7 @@ function toJson(docs, collectionPath, next) {
     fs.writeFileSync(collectionPath + doc._id + '.json', JSON.stringify(doc), {
       encoding: 'utf8'
     });
-    return last === ++index ? next() : null;
+    return last === ++index ? next(null) : null;
   });
 }
 
@@ -177,7 +177,7 @@ function toBson(docs, collectionPath, next) {
 
   var last = docs.length, index = 0;
   if (last < 1) {
-    return next();
+    return next(null);
   }
 
   return docs.forEach(function(doc) {
@@ -186,7 +186,7 @@ function toBson(docs, collectionPath, next) {
     fs.writeFileSync(collectionPath + doc._id + '.bson', BSON.serialize(doc), {
       encoding: null
     });
-    return last === ++index ? next() : null;
+    return last === ++index ? next(null) : null;
   });
 }
 
