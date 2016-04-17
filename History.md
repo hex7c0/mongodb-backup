@@ -1,3 +1,12 @@
+v1.5.5 / 2016-04-17
+==================
+
+  * Change LICENSE to Apache2 from GPL3
+  * Tested against `node`@5.x
+  * Update `logger-request`@3.6.1
+  * Update `bson`@0.4.23
+  * Update `mongodb`@2.1.16
+
 v1.5.4 / 2016-02-11
 ==================
 

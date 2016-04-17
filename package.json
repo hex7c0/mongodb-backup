@@ -1,5 +1,5 @@
 {
-  "version": "1.5.4",
+  "version": "1.5.5",
   "name": "mongodb-backup",
   "description": "backup for mongodb",
   "keywords": [
@@ -49,5 +49,5 @@
     "test": "mocha --bail --check-leaks --globals Promise --timeout 10000",
     "test-cov": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --timeout 10000"
   },
-  "license": "GPL-3.0"
+  "license": "Apache-2.0"
 }
