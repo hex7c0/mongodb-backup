@@ -143,6 +143,7 @@ function rmDir(path, next) {
 /**
  * JSON parser
  * 
+ * @deprecated
  * @function toJson
  * @param {Array} docs - documents from query
  * @param {String} collectionPath - path of collection
@@ -166,8 +167,21 @@ function toJson(docs, collectionPath, next) {
 }
 
 /**
+ * JSON parser async
+ * 
+ * @function toJson
+ * @param {Objecy} doc - document from stream
+ * @param {String} collectionPath - path of collection
+ */
+function toJsonAsync(doc, collectionPath) {
+
+  fs.writeFile(collectionPath + doc._id + '.json', JSON.stringify(doc), 'utf8');
+}
+
+/**
  * BSON parser
  * 
+ * @deprecated
  * @function toBson
  * @param {Array} docs - documents from query
  * @param {String} collectionPath - path of collection
@@ -188,6 +202,18 @@ function toBson(docs, collectionPath, next) {
     });
     return last === ++index ? next(null) : null;
   });
+}
+
+/**
+ * BSON parser async
+ * 
+ * @function toBson
+ * @param {Objecy} doc - document from stream
+ * @param {String} collectionPath - path of collection
+ */
+function toBsonAsync(doc, collectionPath) {
+
+  fs.writeFile(collectionPath + doc._id + '.bson', BSON.serialize(doc), 'utf8');
 }
 
 /**
@@ -225,20 +251,15 @@ function allCollections(db, name, query, metadata, parser, next) {
 
           return meta(collection, metadata, function() {
 
-            return collection.find(query).snapshot(true).toArray(
-              function(err, docs) {
+            var stream = collection.find(query).snapshot(true).stream();
 
-                if (err) {
-                  return last === ++index ? next(err) : error(err);
-                }
-                return parser(docs, name, function(err) {
+            stream.once('end', function() {
 
-                  if (err) {
-                    return last === ++index ? next(err) : error(err);
-                  }
-                  return last === ++index ? next(null) : null;
-                });
-              });
+              return last === ++index ? next(null) : null;
+            }).on('data', function(doc) {
+
+              parser(doc, name);
+            });
           });
         });
     });
@@ -284,23 +305,21 @@ function allCollectionsScan(db, name, numCursors, metadata, parser, next) {
               numCursors: numCursors
             }, function(err, cursors) {
 
-              var left = cursors.length;
-              if (left === 0) {
+              var ii, cursorsDone;
+              ii = cursorsDone = cursors.length;
+              if (ii === 0) {
                 return last === ++index ? next(null) : null;
               }
-              for (var i = 0; i < left; ++i) {
-                cursors[i].toArray(function(err, docs) {
+              for (var i = 0; i < ii; ++i) {
+                cursors[i].once('end', function() {
 
-                  if (err) {
-                    return last === ++index ? next(err) : error(err);
-                  }
-                  return parser(docs, name, function(err) {
-
-                    if (err) {
-                      return last === ++index ? next(err) : error(err);
-                    }
+                  // No more cursors let's ensure we got all results
+                  if (--cursorsDone === 0) {
                     return last === ++index ? next(null) : null;
-                  });
+                  }
+                }).on('data', function(doc) {
+
+                  parser(doc, name);
                 });
               }
             });
@@ -342,20 +361,15 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
 
           return meta(collection, metadata, function() {
 
-            return collection.find(query).snapshot(true).toArray(
-              function(err, docs) {
+            var stream = collection.find(query).snapshot(true).stream();
 
-                if (err) {
-                  return last === ++index ? next(err) : error(err);
-                }
-                return parser(docs, name, function(err) {
+            stream.once('end', function() {
 
-                  if (err) {
-                    return last === ++index ? next(err) : error(err);
-                  }
-                  return last === ++index ? next(null) : null;
-                });
-              });
+              return last === ++index ? next(null) : null;
+            }).on('data', function(doc) {
+
+              parser(doc, name);
+            });
           });
         });
     });
@@ -399,23 +413,21 @@ function someCollectionsScan(db, name, numCursors, metadata, parser, next,
               numCursors: numCursors
             }, function(err, cursors) {
 
-              var left = cursors.length;
-              if (left === 0) {
+              var ii, cursorsDone;
+              ii = cursorsDone = cursors.length;
+              if (ii === 0) {
                 return last === ++index ? next(null) : null;
               }
-              for (var i = 0; i < left; ++i) {
-                cursors[i].toArray(function(err, docs) {
+              for (var i = 0; i < ii; ++i) {
+                cursors[i].once('end', function() {
 
-                  if (err) {
-                    return last === ++index ? next(err) : error(err);
-                  }
-                  return parser(docs, name, function(err) {
-
-                    if (err) {
-                      return last === ++index ? next(err) : error(err);
-                    }
+                  // No more cursors let's ensure we got all results
+                  if (--cursorsDone === 0) {
                     return last === ++index ? next(null) : null;
-                  });
+                  }
+                }).on('data', function(doc) {
+
+                  parser(doc, name);
                 });
               }
             });
@@ -441,11 +453,11 @@ function wrapper(my) {
       case 'bson':
         BSON = require('bson');
         BSON = new BSON.BSONPure.BSON();
-        parser = toBson;
+        parser = toBsonAsync;
         break;
       case 'json':
         // JSON error on ObjectId, Date and Long
-        parser = toJson;
+        parser = toJsonAsync;
         break;
       default:
         throw new Error('missing parser option');
