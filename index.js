@@ -49,11 +49,8 @@ function writeMetadata(collection, metadata, next) {
       return next(null);
     }
 
-    fs.writeFileSync(metadata + collection.collectionName, JSON
-        .stringify(indexes), {
-      encoding: 'utf8'
-    });
-    return next(null);
+    fs.writeFile(metadata + collection.collectionName, JSON.stringify(indexes),
+      'utf8', next);
   });
 }
 
