@@ -59,4 +59,4 @@ backup({
 
 Take a look at my [examples](examples)
 
-### [License GPLv3](LICENSE)
+### [License Apache2](LICENSE)
