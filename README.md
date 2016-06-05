@@ -57,6 +57,6 @@ backup({
 
 ## Examples
 
-Take a look at my [examples](https://github.com/hex7c0/mongodb-backup/tree/1.5/examples)
+Take a look at my [examples](https://github.com/hex7c0/mongodb-backup/tree/1.6/examples)
 
-### [License Apache2](https://github.com/hex7c0/mongodb-backup/blob/1.5/LICENSE)
+### [License Apache2](https://github.com/hex7c0/mongodb-backup/blob/1.6/LICENSE)
