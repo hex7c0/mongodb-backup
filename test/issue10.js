@@ -100,7 +100,10 @@ describe('issue10', function() {
         uri: Uri,
         root: Root,
         collections: [ Collection ],
-        callback: done
+        callback: function() {
+
+          setTimeout(done, 100);
+        }
       });
     });
   });
