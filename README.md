@@ -24,7 +24,7 @@ or
 git clone git://github.com/hex7c0/mongodb-backup.git
 ```
 
-Bson@0.4.11 has been pulled out, so versions >= `1.3.0` and <= `1.4.1` are deprecate
+Bson@0.4.11 has been pulled out, so versions >= `1.3.0` and <= `1.4.1` are deprecated
 
 ## API
 
@@ -56,6 +56,6 @@ backup({
 
 ## Examples
 
-Take a look at my [examples](examples)
+Take a look at my [examples](https://github.com/hex7c0/mongodb-backup/tree/1.4/examples)
 
-### [License GPLv3](LICENSE)
+### [License Apache2](https://github.com/hex7c0/mongodb-backup/blob/1.4/LICENSE)
