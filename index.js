@@ -3,7 +3,7 @@
  * @file mongodb-backup main
  * @module mongodb-backup
  * @subpackage main
- * @version 1.3.0
+ * @version 1.4.0
  * @author hex7c0 <hex7c0@gmail.com>
  * @copyright hex7c0 2014
  * @license GPLv3
@@ -12,6 +12,7 @@
 /*
  * initialize module
  */
+var systemRegex = /^system\./;
 var fs = require('fs');
 var BSON;
 var logger;
@@ -190,7 +191,7 @@ function toBson(docs, collectionPath, next) {
 }
 
 /**
- * get data from all collections available
+ * get data from all available collections
  * 
  * @function allCollections
  * @param {Object} db - database
@@ -214,7 +215,7 @@ function allCollections(db, name, query, metadata, parser, next) {
 
     return collections.forEach(function(collection) {
 
-      if (/^system./.test(collection.collectionName) === true) {
+      if (systemRegex.test(collection.collectionName) === true) {
         return last === ++index ? next(null) : null;
       }
       logger('select collection ' + collection.collectionName);
@@ -312,7 +313,7 @@ function wrapper(my) {
         parser = toBson;
         break;
       case 'json':
-        // JSON error on ObjectId and Date
+        // JSON error on ObjectId, Date and Long
         parser = toJson;
         break;
       default:
