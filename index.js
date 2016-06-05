@@ -50,7 +50,7 @@ function writeMetadata(collection, metadata, next) {
     }
 
     fs.writeFile(metadata + collection.collectionName, JSON.stringify(indexes),
-      'utf8', next);
+      next);
   });
 }
 
@@ -138,32 +138,6 @@ function rmDir(path, next) {
 }
 
 /**
- * JSON parser
- * 
- * @deprecated
- * @function toJson
- * @param {Array} docs - documents from query
- * @param {String} collectionPath - path of collection
- * @param {Function} next - callback
- */
-function toJson(docs, collectionPath, next) {
-
-  var last = docs.length, index = 0;
-  if (last < 1) {
-    return next(null);
-  }
-
-  return docs.forEach(function(doc) {
-
-    // no async. EMFILE error
-    fs.writeFileSync(collectionPath + doc._id + '.json', JSON.stringify(doc), {
-      encoding: 'utf8'
-    });
-    return last === ++index ? next(null) : null;
-  });
-}
-
-/**
  * JSON parser async
  * 
  * @function toJson
@@ -172,33 +146,7 @@ function toJson(docs, collectionPath, next) {
  */
 function toJsonAsync(doc, collectionPath) {
 
-  fs.writeFile(collectionPath + doc._id + '.json', JSON.stringify(doc), 'utf8');
-}
-
-/**
- * BSON parser
- * 
- * @deprecated
- * @function toBson
- * @param {Array} docs - documents from query
- * @param {String} collectionPath - path of collection
- * @param {Function} next - callback
- */
-function toBson(docs, collectionPath, next) {
-
-  var last = docs.length, index = 0;
-  if (last < 1) {
-    return next(null);
-  }
-
-  return docs.forEach(function(doc) {
-
-    // no async. EMFILE error
-    fs.writeFileSync(collectionPath + doc._id + '.bson', BSON.serialize(doc), {
-      encoding: null
-    });
-    return last === ++index ? next(null) : null;
-  });
+  fs.writeFile(collectionPath + doc._id + '.json', JSON.stringify(doc));
 }
 
 /**
@@ -210,7 +158,7 @@ function toBson(docs, collectionPath, next) {
  */
 function toBsonAsync(doc, collectionPath) {
 
-  fs.writeFile(collectionPath + doc._id + '.bson', BSON.serialize(doc), 'utf8');
+  fs.writeFile(collectionPath + doc._id + '.bson', BSON.serialize(doc));
 }
 
 /**
