@@ -32,10 +32,10 @@ describe('parser', function() {
       parser: function(docs, name, next) {
 
         c++;
-        assert.equal(Array.isArray(docs), true);
+        assert.equal(Array.isArray(docs), false);
         assert.equal(typeof name, 'string');
-        assert.equal(typeof next, 'function');
-        next();
+        assert.equal(typeof next, 'undefined');
+        // next();
       },
       callback: function() {
 

@@ -49,11 +49,8 @@ function writeMetadata(collection, metadata, next) {
       return next(null);
     }
 
-    fs.writeFileSync(metadata + collection.collectionName, JSON
-        .stringify(indexes), {
-      encoding: 'utf8'
-    });
-    return next(null);
+    fs.writeFile(metadata + collection.collectionName, JSON.stringify(indexes),
+      next);
   });
 }
 
@@ -141,53 +138,27 @@ function rmDir(path, next) {
 }
 
 /**
- * JSON parser
+ * JSON parser async
  * 
  * @function toJson
- * @param {Array} docs - documents from query
+ * @param {Objecy} doc - document from stream
  * @param {String} collectionPath - path of collection
- * @param {Function} next - callback
  */
-function toJson(docs, collectionPath, next) {
+function toJsonAsync(doc, collectionPath) {
 
-  var last = docs.length, index = 0;
-  if (last < 1) {
-    return next(null);
-  }
-
-  return docs.forEach(function(doc) {
-
-    // no async. EMFILE error
-    fs.writeFileSync(collectionPath + doc._id + '.json', JSON.stringify(doc), {
-      encoding: 'utf8'
-    });
-    return last === ++index ? next(null) : null;
-  });
+  fs.writeFile(collectionPath + doc._id + '.json', JSON.stringify(doc));
 }
 
 /**
- * BSON parser
+ * BSON parser async
  * 
  * @function toBson
- * @param {Array} docs - documents from query
+ * @param {Objecy} doc - document from stream
  * @param {String} collectionPath - path of collection
- * @param {Function} next - callback
  */
-function toBson(docs, collectionPath, next) {
+function toBsonAsync(doc, collectionPath) {
 
-  var last = docs.length, index = 0;
-  if (last < 1) {
-    return next(null);
-  }
-
-  return docs.forEach(function(doc) {
-
-    // no async. EMFILE error
-    fs.writeFileSync(collectionPath + doc._id + '.bson', BSON.serialize(doc), {
-      encoding: null
-    });
-    return last === ++index ? next(null) : null;
-  });
+  fs.writeFile(collectionPath + doc._id + '.bson', BSON.serialize(doc));
 }
 
 /**
@@ -225,20 +196,15 @@ function allCollections(db, name, query, metadata, parser, next) {
 
           return meta(collection, metadata, function() {
 
-            return collection.find(query).snapshot(true).toArray(
-              function(err, docs) {
+            var stream = collection.find(query).snapshot(true).stream();
 
-                if (err) {
-                  return last === ++index ? next(err) : error(err);
-                }
-                return parser(docs, name, function(err) {
+            stream.once('end', function() {
 
-                  if (err) {
-                    return last === ++index ? next(err) : error(err);
-                  }
-                  return last === ++index ? next(null) : null;
-                });
-              });
+              return last === ++index ? next(null) : null;
+            }).on('data', function(doc) {
+
+              parser(doc, name);
+            });
           });
         });
     });
@@ -284,23 +250,21 @@ function allCollectionsScan(db, name, numCursors, metadata, parser, next) {
               numCursors: numCursors
             }, function(err, cursors) {
 
-              var left = cursors.length;
-              if (left === 0) {
+              var ii, cursorsDone;
+              ii = cursorsDone = cursors.length;
+              if (ii === 0) {
                 return last === ++index ? next(null) : null;
               }
-              for (var i = 0; i < left; ++i) {
-                cursors[i].toArray(function(err, docs) {
+              for (var i = 0; i < ii; ++i) {
+                cursors[i].once('end', function() {
 
-                  if (err) {
-                    return last === ++index ? next(err) : error(err);
-                  }
-                  return parser(docs, name, function(err) {
-
-                    if (err) {
-                      return last === ++index ? next(err) : error(err);
-                    }
+                  // No more cursors let's ensure we got all results
+                  if (--cursorsDone === 0) {
                     return last === ++index ? next(null) : null;
-                  });
+                  }
+                }).on('data', function(doc) {
+
+                  parser(doc, name);
                 });
               }
             });
@@ -342,20 +306,15 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
 
           return meta(collection, metadata, function() {
 
-            return collection.find(query).snapshot(true).toArray(
-              function(err, docs) {
+            var stream = collection.find(query).snapshot(true).stream();
 
-                if (err) {
-                  return last === ++index ? next(err) : error(err);
-                }
-                return parser(docs, name, function(err) {
+            stream.once('end', function() {
 
-                  if (err) {
-                    return last === ++index ? next(err) : error(err);
-                  }
-                  return last === ++index ? next(null) : null;
-                });
-              });
+              return last === ++index ? next(null) : null;
+            }).on('data', function(doc) {
+
+              parser(doc, name);
+            });
           });
         });
     });
@@ -399,23 +358,21 @@ function someCollectionsScan(db, name, numCursors, metadata, parser, next,
               numCursors: numCursors
             }, function(err, cursors) {
 
-              var left = cursors.length;
-              if (left === 0) {
+              var ii, cursorsDone;
+              ii = cursorsDone = cursors.length;
+              if (ii === 0) {
                 return last === ++index ? next(null) : null;
               }
-              for (var i = 0; i < left; ++i) {
-                cursors[i].toArray(function(err, docs) {
+              for (var i = 0; i < ii; ++i) {
+                cursors[i].once('end', function() {
 
-                  if (err) {
-                    return last === ++index ? next(err) : error(err);
-                  }
-                  return parser(docs, name, function(err) {
-
-                    if (err) {
-                      return last === ++index ? next(err) : error(err);
-                    }
+                  // No more cursors let's ensure we got all results
+                  if (--cursorsDone === 0) {
                     return last === ++index ? next(null) : null;
-                  });
+                  }
+                }).on('data', function(doc) {
+
+                  parser(doc, name);
                 });
               }
             });
@@ -441,11 +398,11 @@ function wrapper(my) {
       case 'bson':
         BSON = require('bson');
         BSON = new BSON.BSONPure.BSON();
-        parser = toBson;
+        parser = toBsonAsync;
         break;
       case 'json':
         // JSON error on ObjectId, Date and Long
-        parser = toJson;
+        parser = toJsonAsync;
         break;
       default:
         throw new Error('missing parser option');
