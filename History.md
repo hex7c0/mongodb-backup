@@ -1,3 +1,11 @@
+v1.4.6 / 2016-06-06
+==================
+
+  * Change LICENSE to Apache2 from GPL3
+  * Update `bson`@0.4.23
+  * Update `fstream`@1.0.9
+  * Update `logger-request`@3.6.1
+
 v1.4.5 / 2016-01-04
 ==================
 
