@@ -24,7 +24,7 @@
   },
   "main": "index.min.js",
   "dependencies": {
-    "bson": "0.4.23",
+    "bson": "0.5.2",
     "fstream": "1.0.9",
     "mongodb": "2.2.2",
     "graceful-fs": "4.1.4",
