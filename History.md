@@ -1,3 +1,11 @@
+v1.6.1 / 2016-07-16
+==================
+
+  * Install `graceful-fs`@4.1.4 for #16
+  * Update `bson`@0.5.2
+  * Update `mongodb`@2.2.2
+  * Update `fstream`@1.0.10
+
 v1.6.0 / 2016-06-05
 ==================
 
