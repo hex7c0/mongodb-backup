@@ -13,7 +13,7 @@
  * initialize module
  */
 var systemRegex = /^system\./;
-var fs = require('fs');
+var fs = require('graceful-fs');
 var BSON;
 var logger;
 var meta;
