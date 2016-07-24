@@ -26,9 +26,9 @@
   "dependencies": {
     "bson": "0.5.2",
     "fstream": "1.0.10",
-    "mongodb": "2.2.2",
     "graceful-fs": "4.1.4",
     "logger-request": "3.6.1",
+    "mongodb": "2.2.4",
     "tar": "2.2.1"
   },
   "devDependencies": {
