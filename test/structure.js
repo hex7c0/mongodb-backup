@@ -22,9 +22,66 @@ var URI = process.env.URI;
  */
 describe('structure', function() {
 
+  var ROOT = __dirname + '/dump';
+
   describe('with query', function() {
 
-    var ROOT = __dirname + '/dump';
+    describe('errors', function() {
+
+      it('should return error beacause collection does not exist',
+        function(done) {
+
+          backup({
+            uri: URI,
+            root: ROOT,
+            collections: [ 'foobar' ],
+            callback: function(err) {
+
+              assert.notEqual(err, null);
+              assert.ok(/does not exist/.test(err.message));
+              fs.readdirSync(ROOT).forEach(function(first) { // database
+
+                var database = ROOT + '/' + first;
+                fs.stat(database + '/foobar', function(err) {
+
+                  assert.notEqual(err, null);
+                  assert.ok(/no such file or directory/.test(err.message));
+                  done();
+                });
+              });
+            }
+          });
+        });
+      it('should return error beacause collections does not exist',
+        function(done) {
+
+          backup({
+            uri: URI,
+            root: ROOT,
+            collections: [ 'foo', 'bar' ],
+            callback: function(err) {
+
+              assert.notEqual(err, null);
+              assert.ok(/does not exist/.test(err.message));
+              fs.readdirSync(ROOT).forEach(function(first) { // database
+
+                var database = ROOT + '/' + first;
+                fs.stat(database + '/foo', function(err) {
+
+                  assert.notEqual(err, null);
+                  assert.ok(/no such file or directory/.test(err.message));
+                  fs.stat(database + '/bar', function(err) {
+
+                    assert.notEqual(err, null);
+                    assert.ok(/no such file or directory/.test(err.message));
+                    done();
+                  });
+                });
+              });
+            }
+          });
+        });
+    });
 
     describe('collections', function() {
 
@@ -35,8 +92,9 @@ describe('structure', function() {
           root: ROOT,
           collections: [ 'logins', 'auths' ],
           parser: 'json',
-          callback: function() {
+          callback: function(err) {
 
+            assert.ifError(err);
             fs.readdirSync(ROOT).forEach(function(first) { // database
 
               var database = ROOT + '/' + first;
@@ -85,8 +143,9 @@ describe('structure', function() {
           root: ROOT,
           collections: [ 'logins', 'auths' ],
           parser: 'bson',
-          callback: function() {
+          callback: function(err) {
 
+            assert.ifError(err);
             fs.readdirSync(ROOT).forEach(function(first) { // database
 
               var database = ROOT + '/' + first;
@@ -138,8 +197,9 @@ describe('structure', function() {
           uri: URI,
           root: ROOT,
           parser: 'json',
-          callback: function() {
+          callback: function(err) {
 
+            assert.ifError(err);
             fs.readdirSync(ROOT).forEach(function(first) { // database
 
               var database = ROOT + '/' + first;
@@ -172,8 +232,9 @@ describe('structure', function() {
           uri: URI,
           root: ROOT,
           parser: 'bson',
-          callback: function() {
+          callback: function(err) {
 
+            assert.ifError(err);
             fs.readdirSync(ROOT).forEach(function(first) { // database
 
               var database = ROOT + '/' + first;
@@ -216,8 +277,9 @@ describe('structure', function() {
           uri: URI,
           root: ROOT,
           tar: 't1.tar',
-          callback: function() {
+          callback: function(err) {
 
+            assert.ifError(err);
             assert.equal(fs.existsSync(path), true);
             fs.unlink(path, done);
           }
@@ -246,8 +308,9 @@ describe('structure', function() {
           uri: URI,
           root: ROOT,
           logger: l,
-          callback: function() {
+          callback: function(err) {
 
+            assert.ifError(err);
             assert.equal(fs.existsSync(l), true);
             fs.unlink(l, done);
           }
@@ -284,7 +347,64 @@ describe('structure', function() {
 
   describe('with parallelCollectionScan', function() {
 
-    var ROOT = __dirname + '/dump';
+    describe('errors', function() {
+
+      it('should return error beacause collection does not exist',
+        function(done) {
+
+          backup({
+            uri: URI,
+            root: ROOT,
+            collections: [ 'foobar' ],
+            numCursors: 2,
+            callback: function(err) {
+
+              assert.notEqual(err, null);
+              assert.ok(/does not exist/.test(err.message));
+              fs.readdirSync(ROOT).forEach(function(first) { // database
+
+                var database = ROOT + '/' + first;
+                fs.stat(database + '/foobar', function(err) {
+
+                  assert.notEqual(err, null);
+                  assert.ok(/no such file or directory/.test(err.message));
+                  done();
+                });
+              });
+            }
+          });
+        });
+      it('should return error beacause collections does not exist',
+        function(done) {
+
+          backup({
+            uri: URI,
+            root: ROOT,
+            collections: [ 'foo', 'bar' ],
+            numCursors: 2,
+            callback: function(err) {
+
+              assert.notEqual(err, null);
+              assert.ok(/does not exist/.test(err.message));
+              fs.readdirSync(ROOT).forEach(function(first) { // database
+
+                var database = ROOT + '/' + first;
+                fs.stat(database + '/foo', function(err) {
+
+                  assert.notEqual(err, null);
+                  assert.ok(/no such file or directory/.test(err.message));
+                  fs.stat(database + '/bar', function(err) {
+
+                    assert.notEqual(err, null);
+                    assert.ok(/no such file or directory/.test(err.message));
+                    done();
+                  });
+                });
+              });
+            }
+          });
+        });
+    });
 
     describe('collections', function() {
 
@@ -296,8 +416,9 @@ describe('structure', function() {
           collections: [ 'logins', 'auths' ],
           parser: 'json',
           numCursors: 2,
-          callback: function() {
+          callback: function(err) {
 
+            assert.ifError(err);
             setTimeout(function() {
 
               fs.readdirSync(ROOT).forEach(function(first) { // database
@@ -350,8 +471,9 @@ describe('structure', function() {
           collections: [ 'logins', 'auths' ],
           parser: 'bson',
           numCursors: 2,
-          callback: function() {
+          callback: function(err) {
 
+            assert.ifError(err);
             setTimeout(function() {
 
               fs.readdirSync(ROOT).forEach(function(first) { // database
@@ -407,8 +529,9 @@ describe('structure', function() {
           root: ROOT,
           parser: 'json',
           numCursors: 2,
-          callback: function() {
+          callback: function(err) {
 
+            assert.ifError(err);
             setTimeout(function() {
 
               fs.readdirSync(ROOT).forEach(function(first) { // database
@@ -445,8 +568,9 @@ describe('structure', function() {
           root: ROOT,
           parser: 'bson',
           numCursors: 2,
-          callback: function() {
+          callback: function(err) {
 
+            assert.ifError(err);
             setTimeout(function() {
 
               fs.readdirSync(ROOT).forEach(function(first) { // database
@@ -493,8 +617,9 @@ describe('structure', function() {
           root: ROOT,
           tar: 't2.tar',
           numCursors: 2,
-          callback: function() {
+          callback: function(err) {
 
+            assert.ifError(err);
             assert.equal(fs.existsSync(path), true);
             fs.unlink(path, done);
           }
@@ -524,8 +649,9 @@ describe('structure', function() {
           root: ROOT,
           logger: l,
           numCursors: 2,
-          callback: function() {
+          callback: function(err) {
 
+            assert.ifError(err);
             assert.equal(fs.existsSync(l), true);
             fs.unlink(l, done);
           }
