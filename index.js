@@ -45,8 +45,7 @@ function writeMetadata(collection, metadata, next) {
   return collection.indexes(function(err, indexes) {
 
     if (err) {
-      error(err);
-      return next(null);
+      return next(err);
     }
 
     fs.writeFile(metadata + collection.collectionName, JSON.stringify(indexes),
@@ -63,28 +62,33 @@ function writeMetadata(collection, metadata, next) {
  */
 function makeDir(path, next) {
 
-  return fs.stat(path, function(err, stats) {
+  fs.stat(path, function(err, stats) {
 
-    if (err && err.code === 'ENOENT') {
+    if (err && err.code === 'ENOENT') { // no file or dir
       logger('make dir at ' + path);
       return fs.mkdir(path, function(err) {
 
-        return next(err, path);
+        next(err, path);
       });
 
-    } else if (stats && stats.isDirectory() === false) {
+    } else if (stats && stats.isDirectory() === false) { // path is a file
       logger('unlink file at ' + path);
-      return fs.unlink(path, function() {
+      return fs.unlink(path, function(err) {
+
+        if (err) { // unlink fail. permission maybe
+          return next(err);
+        }
 
         logger('make dir at ' + path);
-        return fs.mkdir(path, function(err) {
+        fs.mkdir(path, function(err) {
 
-          return next(err, path);
+          next(err, path);
         });
       });
-    }
 
-    return next(null, path);
+    } else { // already a dir
+      next(null, path);
+    }
   });
 }
 
@@ -97,11 +101,11 @@ function makeDir(path, next) {
  */
 function rmDir(path, next) {
 
-  return fs.readdirSync(path).forEach(function(first) { // database
+  fs.readdirSync(path).forEach(function(first) { // database
 
     var database = path + first;
     if (fs.statSync(database).isDirectory() === false) {
-      return;
+      return next(Error('path is not a Directory'));
     }
 
     var metadata = '';
@@ -117,6 +121,7 @@ function rmDir(path, next) {
       if (fs.statSync(collection).isDirectory() === false) {
         return;
       }
+
       fs.readdirSync(collection).forEach(function(third) { // document
 
         var document = collection + '/' + third;
@@ -127,7 +132,7 @@ function rmDir(path, next) {
       if (metadata !== '') {
         fs.unlinkSync(metadata + second);
       }
-      return fs.rmdirSync(collection);
+      fs.rmdirSync(collection);
     });
 
     if (metadata !== '') {
@@ -177,36 +182,40 @@ function allCollections(db, name, query, metadata, parser, next) {
   return db.collections(function(err, collections) {
 
     if (err) {
-      return error(err);
-    }
-    var last = collections.length, index = 0;
-    if (last < 1) {
-      return next(null);
+      return next(err);
     }
 
-    return collections.forEach(function(collection) {
+    var last = ~~collections.length, index = 0;
+    if (last === 0) { // empty set
+      return next(err);
+    }
+
+    collections.forEach(function(collection) {
 
       if (systemRegex.test(collection.collectionName) === true) {
         return last === ++index ? next(null) : null;
       }
 
       logger('select collection ' + collection.collectionName);
-      return makeDir(name + collection.collectionName + '/',
-        function(err, name) {
+      makeDir(name + collection.collectionName + '/', function(err, name) {
 
-          return meta(collection, metadata, function() {
+        if (err) {
+          return last === ++index ? next(err) : error(err);
+        }
 
-            var stream = collection.find(query).snapshot(true).stream();
+        meta(collection, metadata, function() {
 
-            stream.once('end', function() {
+          var stream = collection.find(query).snapshot(true).stream();
 
-              return last === ++index ? next(null) : null;
-            }).on('data', function(doc) {
+          stream.once('end', function() {
 
-              parser(doc, name);
-            });
+            return last === ++index ? next(null) : null;
+          }).on('data', function(doc) {
+
+            parser(doc, name);
           });
         });
+      });
     });
   });
 }
@@ -227,49 +236,58 @@ function allCollectionsScan(db, name, numCursors, metadata, parser, next) {
   return db.collections(function(err, collections) {
 
     if (err) {
-      return error(err);
+      return next(err);
     }
-    var last = collections.length, index = 0;
-    if (last < 1) {
+
+    var last = ~~collections.length, index = 0;
+    if (last === 0) { // empty set
       return next(null);
     }
 
-    return collections.forEach(function(collection) {
+    collections.forEach(function(collection) {
 
       if (systemRegex.test(collection.collectionName) === true) {
         return last === ++index ? next(null) : null;
       }
 
       logger('select collection scan ' + collection.collectionName);
-      return makeDir(name + collection.collectionName + '/',
-        function(err, name) {
+      makeDir(name + collection.collectionName + '/', function(err, name) {
 
-          return meta(collection, metadata, function() {
+        if (err) {
+          return last === ++index ? next(err) : error(err);
+        }
 
-            return collection.parallelCollectionScan({
-              numCursors: numCursors
-            }, function(err, cursors) {
+        meta(collection, metadata, function() {
 
-              var ii, cursorsDone;
-              ii = cursorsDone = cursors.length;
-              if (ii === 0) {
-                return last === ++index ? next(null) : null;
-              }
-              for (var i = 0; i < ii; ++i) {
-                cursors[i].once('end', function() {
+          collection.parallelCollectionScan({
+            numCursors: numCursors
+          }, function(err, cursors) {
 
-                  // No more cursors let's ensure we got all results
-                  if (--cursorsDone === 0) {
-                    return last === ++index ? next(null) : null;
-                  }
-                }).on('data', function(doc) {
+            if (err) {
+              return last === ++index ? next(err) : error(err);
+            }
 
-                  parser(doc, name);
-                });
-              }
-            });
+            var ii, cursorsDone;
+            ii = cursorsDone = ~~cursors.length;
+            if (ii === 0) { // empty set
+              return last === ++index ? next(null) : null;
+            }
+
+            for (var i = 0; i < ii; ++i) {
+              cursors[i].once('end', function() {
+
+                // No more cursors let's ensure we got all results
+                if (--cursorsDone === 0) {
+                  return last === ++index ? next(null) : null;
+                }
+              }).on('data', function(doc) {
+
+                parser(doc, name);
+              });
+            }
           });
         });
+      });
     });
   });
 }
@@ -288,35 +306,41 @@ function allCollectionsScan(db, name, numCursors, metadata, parser, next) {
  */
 function someCollections(db, name, query, metadata, parser, next, collections) {
 
-  var last = collections.length, index = 0;
-  if (last < 1) {
+  var last = ~~collections.length, index = 0;
+  if (last === 0) {
     return next(null);
   }
 
-  return collections.forEach(function(collection) {
+  collections.forEach(function(collection) {
 
-    return db.collection(collection, function(err, collection) {
+    db.collection(collection, {
+      strict: true
+    }, function(err, collection) {
 
-      logger('select collection ' + collection.collectionName);
-      if (err) {
+      if (err) { // returns an error if the collection does not exist
         return last === ++index ? next(err) : error(err);
       }
-      return makeDir(name + collection.collectionName + '/',
-        function(err, name) {
 
-          return meta(collection, metadata, function() {
+      logger('select collection ' + collection.collectionName);
+      makeDir(name + collection.collectionName + '/', function(err, name) {
 
-            var stream = collection.find(query).snapshot(true).stream();
+        if (err) {
+          return last === ++index ? next(err) : error(err);
+        }
 
-            stream.once('end', function() {
+        meta(collection, metadata, function() {
 
-              return last === ++index ? next(null) : null;
-            }).on('data', function(doc) {
+          var stream = collection.find(query).snapshot(true).stream();
 
-              parser(doc, name);
-            });
+          stream.once('end', function() {
+
+            return last === ++index ? next(null) : null;
+          }).on('data', function(doc) {
+
+            parser(doc, name);
           });
         });
+      });
     });
   });
 }
@@ -336,48 +360,59 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
 function someCollectionsScan(db, name, numCursors, metadata, parser, next,
                              collections) {
 
-  var last = collections.length, index = 0;
-  if (last < 1) {
+  var last = ~~collections.length, index = 0;
+  if (last === 0) { // empty set
     return next(null);
   }
 
-  return collections.forEach(function(collection) {
+  collections.forEach(function(collection) {
 
-    return db.collection(collection, function(err, collection) {
+    db.collection(collection, {
+      strict: true
+    }, function(err, collection) {
 
-      logger('select collection scan ' + collection.collectionName);
-      if (err) {
+      if (err) { // returns an error if the collection does not exist
         return last === ++index ? next(err) : error(err);
       }
-      return makeDir(name + collection.collectionName + '/',
-        function(err, name) {
 
-          return meta(collection, metadata, function() {
+      logger('select collection scan ' + collection.collectionName);
+      makeDir(name + collection.collectionName + '/', function(err, name) {
 
-            return collection.parallelCollectionScan({
-              numCursors: numCursors
-            }, function(err, cursors) {
+        if (err) {
+          return last === ++index ? next(err) : error(err);
+        }
 
-              var ii, cursorsDone;
-              ii = cursorsDone = cursors.length;
-              if (ii === 0) {
-                return last === ++index ? next(null) : null;
-              }
-              for (var i = 0; i < ii; ++i) {
-                cursors[i].once('end', function() {
+        meta(collection, metadata, function() {
 
-                  // No more cursors let's ensure we got all results
-                  if (--cursorsDone === 0) {
-                    return last === ++index ? next(null) : null;
-                  }
-                }).on('data', function(doc) {
+          collection.parallelCollectionScan({
+            numCursors: numCursors
+          }, function(err, cursors) {
 
-                  parser(doc, name);
-                });
-              }
-            });
+            if (err) {
+              return last === ++index ? next(err) : error(err);
+            }
+
+            var ii, cursorsDone;
+            ii = cursorsDone = ~~cursors.length;
+            if (ii === 0) { // empty set
+              return last === ++index ? next(null) : null;
+            }
+
+            for (var i = 0; i < ii; ++i) {
+              cursors[i].once('end', function() {
+
+                // No more cursors let's ensure we got all results
+                if (--cursorsDone === 0) {
+                  return last === ++index ? next(null) : null;
+                }
+              }).on('data', function(doc) {
+
+                parser(doc, name);
+              });
+            }
           });
         });
+      });
     });
   });
 }
@@ -455,84 +490,94 @@ function wrapper(my) {
     };
   }
 
-  function callback() {
+  function callback(err) {
 
     logger('backup stop');
     if (my.callback !== null) {
       logger('callback run');
-      my.callback();
+      my.callback(err);
+
+    } else if (err) {
+      logger(err);
     }
-    return;
   }
 
-  return require('mongodb').MongoClient.connect(my.uri, my.options,
-    function(err, db) {
+  require('mongodb').MongoClient.connect(my.uri, my.options, function(err, db) {
 
-      logger('db open');
+    logger('db open');
+    if (err) {
+      return callback(err);
+    }
+
+    var root = my.tar === null ? my.root : my.dir;
+    makeDir(root, function(err, name) {
+
       if (err) {
-        return error(err);
+        return callback(err);
       }
 
-      var root = my.tar === null ? my.root : my.dir;
-      makeDir(root, function(err, name) {
+      makeDir(name + db.databaseName + '/', function(err, name) {
 
-        makeDir(name + db.databaseName + '/', function(err, name) {
+        function go() {
 
-          function go() {
+          // waiting for `db.fsyncLock()` on node driver
+          return discriminator(db, name, my.query, metadata, parser,
+            function(err) {
 
-            // waiting for `db.fsyncLock()` on node driver
-            return discriminator(db, name, my.query, metadata, parser,
-              function(err) {
+              logger('db close');
+              db.close();
+              if (err) {
+                return callback(err);
+              }
 
-                if (err) {
-                  error(err);
-                }
-                logger('db close');
-                db.close();
+              if (my.tar) {
+                makeDir(my.root, function(e, name) {
 
-                if (my.tar) {
-                  return makeDir(my.root, function(err, name) {
+                  if (err) {
+                    error(err);
+                  }
 
-                    if (err) {
-                      error(err);
-                    }
-                    var dest;
-                    if (my.stream) { // user stream
-                      logger('send tar file to stream');
-                      dest = my.stream;
-                    } else { // filesystem stream
-                      logger('make tar file at ' + name + my.tar);
-                      dest = fs.createWriteStream(name + my.tar);
-                    }
+                  var dest;
+                  if (my.stream) { // user stream
+                    logger('send tar file to stream');
+                    dest = my.stream;
+                  } else { // filesystem stream
+                    logger('make tar file at ' + name + my.tar);
+                    dest = fs.createWriteStream(name + my.tar);
+                  }
 
-                    var packer = require('tar').Pack().on('error', error).on(
-                      'end', function() {
+                  var packer = require('tar').Pack().on('error', callback).on(
+                    'end', function() {
 
-                        rmDir(root);
-                        return callback();
-                      });
+                      rmDir(root);
+                      callback(null);
+                    });
 
-                    return require('fstream').Reader({
-                      path: root + db.databaseName,
-                      type: 'Directory'
-                    }).on('error', error).pipe(packer).pipe(dest);
-                  });
-                }
+                  require('fstream').Reader({
+                    path: root + db.databaseName,
+                    type: 'Directory'
+                  }).on('error', callback).pipe(packer).pipe(dest);
+                });
 
-                return callback();
-              }, my.collections);
-          }
+              } else {
+                callback(null);
+              }
+            }, my.collections);
+        }
 
-          if (my.metadata === false) {
-            go();
-          } else {
-            metadata = name + '.metadata/';
-            makeDir(metadata, go);
-          }
-          return;
-        });
+        if (err) {
+          return callback(err);
+        }
+
+        if (my.metadata === false) {
+          go();
+        } else {
+          metadata = name + '.metadata/';
+          makeDir(metadata, go);
+        }
       });
     });
+  });
 }
 
 /**

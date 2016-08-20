@@ -100,8 +100,9 @@ describe('issue10', function() {
         uri: Uri,
         root: Root,
         collections: [ Collection ],
-        callback: function() {
+        callback: function(err) {
 
+          assert.ifError(err);
           setTimeout(done, 100);
         }
       });

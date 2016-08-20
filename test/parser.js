@@ -37,8 +37,9 @@ describe('parser', function() {
         assert.equal(typeof next, 'undefined');
         // next();
       },
-      callback: function() {
+      callback: function(err) {
 
+        assert.ifError(err);
         assert.equal(c > 0, true);
         done();
       }

@@ -87,8 +87,9 @@ describe('stream', function() {
           uri: URI,
           root: ROOT,
           tar: 'from_file.tar',
-          callback: function() {
+          callback: function(err) {
 
+            assert.ifError(err);
             assert.equal(fs.existsSync(path1), true);
             done();
           }

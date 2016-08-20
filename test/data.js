@@ -64,8 +64,9 @@ describe('data', function() {
         query: {
           _id: DOCS[Object.keys(DOCS)[0]]._id
         },
-        callback: function() {
+        callback: function(err) {
 
+          assert.ifError(err);
           setTimeout(function() {
 
             fs.readdirSync(ROOT).forEach(function(first) { // database
@@ -113,8 +114,9 @@ describe('data', function() {
         query: {
           _id: DOCS[Object.keys(DOCS)[0]]._id
         },
-        callback: function() {
+        callback: function(err) {
 
+          assert.ifError(err);
           setTimeout(function() {
 
             fs.readdirSync(ROOT).forEach(function(first) { // database
@@ -164,8 +166,9 @@ describe('data', function() {
         collections: [ 'logins' ],
         parser: 'json',
         metadata: true,
-        callback: function() {
+        callback: function(err) {
 
+          assert.ifError(err);
           setTimeout(function() {
 
             fs.readdirSync(ROOT).forEach(function(first) { // database
@@ -211,8 +214,9 @@ describe('data', function() {
         collections: [ 'logins' ],
         parser: 'bson',
         metadata: true,
-        callback: function() {
+        callback: function(err) {
 
+          assert.ifError(err);
           setTimeout(function() {
 
             fs.readdirSync(ROOT).forEach(function(first) { // database
