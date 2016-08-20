@@ -24,7 +24,7 @@
   },
   "main": "index.min.js",
   "dependencies": {
-    "bson": "0.5.2",
+    "bson": "0.5.3",
     "fstream": "1.0.10",
     "graceful-fs": "4.1.5",
     "logger-request": "3.6.1",
