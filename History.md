@@ -1,7 +1,15 @@
+v1.6.4 / 2016-08-21
+==================
+
+  * Pass `err` argument to callback function
+  * Update `bson`@0.5.3
+  * Update `graceful`@4.1.6
+  * Update `mongodb`@2.2.7
+
 v1.6.3 / 2016-07-31
 ==================
 
-  * Update `graceful`@4.1.5
+  * Update `graceful-fs`@4.1.5
   * Update `mongodb`@2.2.5
 
 v1.6.2 / 2016-07-26
