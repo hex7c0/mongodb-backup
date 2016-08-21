@@ -38,7 +38,7 @@
     "grunt-contrib-jshint": "~1.0",
     "grunt-endline": "~0.5",
     "istanbul": "~0.4",
-    "mocha": "~2.5",
+    "mocha": "~3.0",
     "mongodb-restore": "~1.5",
     "supertest": "~2.0"
   },
