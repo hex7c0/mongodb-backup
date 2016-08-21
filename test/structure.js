@@ -109,9 +109,7 @@ describe('structure', function() {
                 assert.equal(second[1], 'logins');
 
                 var collection = database + '/' + second[0];
-                if (fs.statSync(collection).isDirectory() === false) {
-                  return;
-                }
+                assert.ok(fs.statSync(collection).isDirectory());
                 fs.readdirSync(collection).forEach(function(third) { // document
 
                   assert.equal(extname(third), '.json');
@@ -121,9 +119,7 @@ describe('structure', function() {
                 fs.rmdirSync(collection);
 
                 var collection = database + '/' + second[1];
-                if (fs.statSync(collection).isDirectory() === false) {
-                  return;
-                }
+                assert.ok(fs.statSync(collection).isDirectory());
                 fs.readdirSync(collection).forEach(function(third) { // document
 
                   assert.equal(extname(third), '.json');
@@ -135,7 +131,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 100);
+            }, 150);
           }
         });
       });
@@ -163,9 +159,7 @@ describe('structure', function() {
                 assert.equal(second[1], 'logins');
 
                 var collection = database + '/' + second[0];
-                if (fs.statSync(collection).isDirectory() === false) {
-                  return;
-                }
+                assert.ok(fs.statSync(collection).isDirectory());
                 fs.readdirSync(collection).forEach(function(third) { // document
 
                   assert.equal(extname(third), '.bson');
@@ -175,9 +169,7 @@ describe('structure', function() {
                 fs.rmdirSync(collection);
 
                 var collection = database + '/' + second[1];
-                if (fs.statSync(collection).isDirectory() === false) {
-                  return;
-                }
+                assert.ok(fs.statSync(collection).isDirectory());
                 fs.readdirSync(collection).forEach(function(third) { // document
 
                   assert.equal(extname(third), '.bson');
@@ -189,7 +181,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 100);
+            }, 150);
           }
         });
       });
@@ -217,9 +209,7 @@ describe('structure', function() {
                 fs.readdirSync(database).forEach(function(second) { // collection
 
                   var collection = database + '/' + second;
-                  if (fs.statSync(collection).isDirectory() === false) {
-                    return;
-                  }
+                  assert.ok(fs.statSync(collection).isDirectory());
                   fs.readdirSync(collection).forEach(function(third) { // document
 
                     assert.equal(extname(third), '.json');
@@ -231,7 +221,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 100);
+            }, 150);
           }
         });
       });
@@ -255,9 +245,7 @@ describe('structure', function() {
                 fs.readdirSync(database).forEach(function(second) { // collection
 
                   var collection = database + '/' + second;
-                  if (fs.statSync(collection).isDirectory() === false) {
-                    return;
-                  }
+                  assert.ok(fs.statSync(collection).isDirectory());
                   fs.readdirSync(collection).forEach(function(third) { // document
 
                     assert.equal(extname(third), '.bson');
@@ -269,7 +257,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 100);
+            }, 150);
           }
         });
       });
@@ -339,9 +327,7 @@ describe('structure', function() {
           fs.readdirSync(database).forEach(function(second) { // collection
 
             var collection = database + '/' + second;
-            if (fs.statSync(collection).isDirectory() === false) {
-              return;
-            }
+            assert.ok(fs.statSync(collection).isDirectory());
             fs.readdirSync(collection).forEach(function(third) { // document
 
               assert.equal(extname(third), '.bson');
@@ -445,9 +431,7 @@ describe('structure', function() {
                 assert.equal(second[1], 'logins');
 
                 var collection = database + '/' + second[0];
-                if (fs.statSync(collection).isDirectory() === false) {
-                  return;
-                }
+                assert.ok(fs.statSync(collection).isDirectory());
                 fs.readdirSync(collection).forEach(function(third) { // document
 
                   assert.equal(extname(third), '.json');
@@ -457,9 +441,7 @@ describe('structure', function() {
                 fs.rmdirSync(collection);
 
                 var collection = database + '/' + second[1];
-                if (fs.statSync(collection).isDirectory() === false) {
-                  return;
-                }
+                assert.ok(fs.statSync(collection).isDirectory());
                 fs.readdirSync(collection).forEach(function(third) { // document
 
                   assert.equal(extname(third), '.json');
@@ -471,7 +453,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 100);
+            }, 150);
           }
         });
       });
@@ -500,9 +482,7 @@ describe('structure', function() {
                 assert.equal(second[1], 'logins');
 
                 var collection = database + '/' + second[0];
-                if (fs.statSync(collection).isDirectory() === false) {
-                  return;
-                }
+                assert.ok(fs.statSync(collection).isDirectory());
                 fs.readdirSync(collection).forEach(function(third) { // document
 
                   assert.equal(extname(third), '.bson');
@@ -512,9 +492,7 @@ describe('structure', function() {
                 fs.rmdirSync(collection);
 
                 var collection = database + '/' + second[1];
-                if (fs.statSync(collection).isDirectory() === false) {
-                  return;
-                }
+                assert.ok(fs.statSync(collection).isDirectory());
                 fs.readdirSync(collection).forEach(function(third) { // document
 
                   assert.equal(extname(third), '.bson');
@@ -526,7 +504,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 100);
+            }, 150);
           }
         });
       });
@@ -555,9 +533,7 @@ describe('structure', function() {
                 fs.readdirSync(database).forEach(function(second) { // collection
 
                   var collection = database + '/' + second;
-                  if (fs.statSync(collection).isDirectory() === false) {
-                    return;
-                  }
+                  assert.ok(fs.statSync(collection).isDirectory());
                   fs.readdirSync(collection).forEach(function(third) { // document
 
                     assert.equal(extname(third), '.json');
@@ -569,7 +545,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 100);
+            }, 150);
           }
         });
       });
@@ -594,9 +570,7 @@ describe('structure', function() {
                 fs.readdirSync(database).forEach(function(second) { // collection
 
                   var collection = database + '/' + second;
-                  if (fs.statSync(collection).isDirectory() === false) {
-                    return;
-                  }
+                  assert.ok(fs.statSync(collection).isDirectory());
                   fs.readdirSync(collection).forEach(function(third) { // document
 
                     assert.equal(extname(third), '.bson');
@@ -608,7 +582,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 100);
+            }, 150);
           }
         });
       });
@@ -680,9 +654,7 @@ describe('structure', function() {
           fs.readdirSync(database).forEach(function(second) { // collection
 
             var collection = database + '/' + second;
-            if (fs.statSync(collection).isDirectory() === false) {
-              return;
-            }
+            assert.ok(fs.statSync(collection).isDirectory());
             fs.readdirSync(collection).forEach(function(third) { // document
 
               assert.equal(extname(third), '.bson');
