@@ -28,7 +28,7 @@
     "fstream": "1.0.10",
     "graceful-fs": "4.1.6",
     "logger-request": "3.6.1",
-    "mongodb": "2.2.7",
+    "mongodb": "2.2.9",
     "tar": "2.2.1"
   },
   "devDependencies": {
