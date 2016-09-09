@@ -17,6 +17,16 @@ var fs = require('fs');
 var extname = require('path').extname;
 var URI = process.env.URI;
 
+var pad = function(val, len) {
+
+  var val = String(val);
+  var len = len || 2;
+  while (val.length < len) {
+    val = '0' + val;
+  }
+  return val;
+};
+
 /*
  * test module
  */
@@ -297,6 +307,9 @@ describe('structure', function() {
     describe('logger', function() {
 
       var l = 'l1.log';
+      var date = new Date();
+      var dailyF = date.getUTCFullYear() + '-' + pad(date.getUTCMonth() + 1)
+        + '-' + pad(date.getUTCDate()) + '.' + l;
       it('should check that log file not exist before test', function(done) {
 
         assert.equal(fs.existsSync(l), false);
@@ -311,8 +324,8 @@ describe('structure', function() {
           callback: function(err) {
 
             assert.ifError(err);
-            assert.equal(fs.existsSync(l), true);
-            fs.unlink(l, done);
+            assert.equal(fs.existsSync(dailyF), true);
+            fs.unlink(dailyF, done);
           }
         });
       });
@@ -623,6 +636,9 @@ describe('structure', function() {
     describe('logger', function() {
 
       var l = 'l2.log';
+      var date = new Date();
+      var dailyF = date.getUTCFullYear() + '-' + pad(date.getUTCMonth() + 1)
+        + '-' + pad(date.getUTCDate()) + '.' + l;
       it('should check that log file not exist before test', function(done) {
 
         assert.equal(fs.existsSync(l), false);
@@ -638,8 +654,8 @@ describe('structure', function() {
           callback: function(err) {
 
             assert.ifError(err);
-            assert.equal(fs.existsSync(l), true);
-            fs.unlink(l, done);
+            assert.equal(fs.existsSync(dailyF), true);
+            fs.unlink(dailyF, done);
           }
         });
       });
