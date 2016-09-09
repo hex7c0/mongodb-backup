@@ -110,9 +110,7 @@ describe('structure', function() {
               fs.readdirSync(ROOT).forEach(function(first) { // database
 
                 var database = ROOT + '/' + first;
-                if (fs.statSync(database).isDirectory() === false) {
-                  return;
-                }
+                assert.equal(fs.statSync(database).isDirectory(), true);
                 var second = fs.readdirSync(database);
                 assert.equal(second.length, 2);
                 assert.equal(second[0], 'auths');
@@ -160,9 +158,7 @@ describe('structure', function() {
               fs.readdirSync(ROOT).forEach(function(first) { // database
 
                 var database = ROOT + '/' + first;
-                if (fs.statSync(database).isDirectory() === false) {
-                  return;
-                }
+                assert.equal(fs.statSync(database).isDirectory(), true);
                 var second = fs.readdirSync(database);
                 assert.equal(second.length, 2);
                 assert.equal(second[0], 'auths');
@@ -213,9 +209,7 @@ describe('structure', function() {
               fs.readdirSync(ROOT).forEach(function(first) { // database
 
                 var database = ROOT + '/' + first;
-                if (fs.statSync(database).isDirectory() === false) {
-                  return;
-                }
+                assert.equal(fs.statSync(database).isDirectory(), true);
                 fs.readdirSync(database).forEach(function(second) { // collection
 
                   var collection = database + '/' + second;
@@ -249,9 +243,7 @@ describe('structure', function() {
               fs.readdirSync(ROOT).forEach(function(first) { // database
 
                 var database = ROOT + '/' + first;
-                if (fs.statSync(database).isDirectory() === false) {
-                  return;
-                }
+                assert.equal(fs.statSync(database).isDirectory(), true);
                 fs.readdirSync(database).forEach(function(second) { // collection
 
                   var collection = database + '/' + second;
@@ -313,6 +305,7 @@ describe('structure', function() {
       it('should check that log file not exist before test', function(done) {
 
         assert.equal(fs.existsSync(l), false);
+        assert.equal(fs.existsSync(dailyF), false);
         done();
       });
       it('should make a log file', function(done) {
@@ -334,9 +327,7 @@ describe('structure', function() {
         fs.readdirSync(ROOT).forEach(function(first) { // database
 
           var database = ROOT + '/' + first;
-          if (fs.statSync(database).isDirectory() === false) {
-            return;
-          }
+          assert.equal(fs.statSync(database).isDirectory(), true);
           fs.readdirSync(database).forEach(function(second) { // collection
 
             var collection = database + '/' + second;
@@ -435,9 +426,7 @@ describe('structure', function() {
               fs.readdirSync(ROOT).forEach(function(first) { // database
 
                 var database = ROOT + '/' + first;
-                if (fs.statSync(database).isDirectory() === false) {
-                  return;
-                }
+                assert.equal(fs.statSync(database).isDirectory(), true);
                 var second = fs.readdirSync(database);
                 assert.equal(second.length, 2);
                 assert.equal(second[0], 'auths');
@@ -486,9 +475,7 @@ describe('structure', function() {
               fs.readdirSync(ROOT).forEach(function(first) { // database
 
                 var database = ROOT + '/' + first;
-                if (fs.statSync(database).isDirectory() === false) {
-                  return;
-                }
+                assert.equal(fs.statSync(database).isDirectory(), true);
                 var second = fs.readdirSync(database);
                 assert.equal(second.length, 2);
                 assert.equal(second[0], 'auths');
@@ -540,9 +527,7 @@ describe('structure', function() {
               fs.readdirSync(ROOT).forEach(function(first) { // database
 
                 var database = ROOT + '/' + first;
-                if (fs.statSync(database).isDirectory() === false) {
-                  return;
-                }
+                assert.equal(fs.statSync(database).isDirectory(), true);
                 fs.readdirSync(database).forEach(function(second) { // collection
 
                   var collection = database + '/' + second;
@@ -577,9 +562,7 @@ describe('structure', function() {
               fs.readdirSync(ROOT).forEach(function(first) { // database
 
                 var database = ROOT + '/' + first;
-                if (fs.statSync(database).isDirectory() === false) {
-                  return;
-                }
+                assert.equal(fs.statSync(database).isDirectory(), true);
                 fs.readdirSync(database).forEach(function(second) { // collection
 
                   var collection = database + '/' + second;
@@ -642,6 +625,7 @@ describe('structure', function() {
       it('should check that log file not exist before test', function(done) {
 
         assert.equal(fs.existsSync(l), false);
+        assert.equal(fs.existsSync(dailyF), false);
         done();
       });
       it('should make a log file', function(done) {
@@ -664,9 +648,7 @@ describe('structure', function() {
         fs.readdirSync(ROOT).forEach(function(first) { // database
 
           var database = ROOT + '/' + first;
-          if (fs.statSync(database).isDirectory() === false) {
-            return;
-          }
+          assert.equal(fs.statSync(database).isDirectory(), true);
           fs.readdirSync(database).forEach(function(second) { // collection
 
             var collection = database + '/' + second;
