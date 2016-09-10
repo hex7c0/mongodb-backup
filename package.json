@@ -12,7 +12,7 @@
   "author": {
     "name": "hex7c0",
     "email": "hex7c0@gmail.com",
-    "url": "http://hex7c0.tk/"
+    "url": "https://hex7c0.github.io/"
   },
   "repository": {
     "type": "git",
@@ -32,7 +32,6 @@
     "tar": "2.2.1"
   },
   "devDependencies": {
-    "coveralls": "~2.11",
     "grunt-contrib-clean": "~1.0",
     "grunt-contrib-uglify": "~2.0",
     "grunt-contrib-jshint": "~1.0",

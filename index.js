@@ -491,6 +491,11 @@ function wrapper(my) {
     };
   }
 
+  /**
+   * latest callback
+   * 
+   * @return {Null}
+   */
   function callback(err) {
 
     logger('backup stop');
