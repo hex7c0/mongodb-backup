@@ -60,7 +60,7 @@ describe('stream', function() {
         request(app).get('/').expect('Content-Type', /tar/).expect(200).end(
           function(err, res) {
 
-            assert.equal(err, null);
+            assert.ifError(err);
             fs.writeFile(path0, res.text, done);
           });
       });
