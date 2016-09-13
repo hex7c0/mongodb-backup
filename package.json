@@ -1,5 +1,5 @@
 {
-  "version": "1.6.4",
+  "version": "1.6.5",
   "name": "mongodb-backup",
   "description": "backup for mongodb",
   "keywords": [
