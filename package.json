@@ -33,7 +33,6 @@
   },
   "devDependencies": {
     "grunt": "~1.0",
-    "grunt-contrib-clean": "~1.0",
     "grunt-contrib-uglify": "~2.0",
     "grunt-contrib-jshint": "~1.0",
     "grunt-endline": "~0.6",
