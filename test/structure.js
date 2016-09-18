@@ -139,7 +139,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 200);
+            }, 500);
           }
         });
       });
@@ -187,7 +187,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 200);
+            }, 500);
           }
         });
       });
@@ -225,7 +225,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 200);
+            }, 500);
           }
         });
       });
@@ -259,7 +259,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 200);
+            }, 500);
           }
         });
       });
@@ -455,7 +455,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 200);
+            }, 500);
           }
         });
       });
@@ -504,7 +504,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 200);
+            }, 500);
           }
         });
       });
@@ -543,7 +543,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 200);
+            }, 500);
           }
         });
       });
@@ -578,7 +578,7 @@ describe('structure', function() {
                 fs.rmdirSync(database);
               });
               done();
-            }, 200);
+            }, 500);
           }
         });
       });

@@ -103,7 +103,7 @@ describe('issue10', function() {
         callback: function(err) {
 
           assert.ifError(err);
-          setTimeout(done, 100);
+          setTimeout(done, 500);
         }
       });
     });

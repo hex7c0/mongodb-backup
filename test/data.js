@@ -97,7 +97,7 @@ describe('data', function() {
               fs.rmdirSync(database);
             });
             done();
-          }, 100);
+          }, 500);
         }
       });
     });
@@ -146,7 +146,7 @@ describe('data', function() {
               fs.rmdirSync(database);
             });
             done();
-          }, 100);
+          }, 500);
         }
       });
     });
@@ -196,7 +196,7 @@ describe('data', function() {
               fs.rmdirSync(database);
             });
             done();
-          }, 100);
+          }, 500);
         }
       });
     });
@@ -243,7 +243,7 @@ describe('data', function() {
               fs.rmdirSync(database);
             });
             done();
-          }, 100);
+          }, 500);
         }
       });
     });
