@@ -66,26 +66,40 @@ module.exports = function(grunt) {
       }
     },
 
+    safer: {
+      target: {
+        files: [ {
+          src: 'lib/**/*.js'
+        }, {
+          src: 'module/**/*.js'
+        }, {
+          src: 'index.js',
+        } ]
+      }
+    },
+
     endline: {
       target: {
-        options: {
-          except: 'node_modules',
-          replaced: true
-        },
         files: [ {
-          src: './**/*.js'
+          src: 'lib/**/*.js'
+        }, {
+          src: 'min/**/*.js'
+        }, {
+          src: 'module/**/*.js'
+        }, {
+          src: '*.js',
         } ]
       }
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-endline');
+  grunt.loadNpmTasks('grunt-safer-regex');
 
-  grunt.registerTask('lint', [ 'jshint' ]);
-  grunt.registerTask('min', [ 'clean', 'uglify', 'endline' ]);
+  grunt.registerTask('lint', [ 'jshint', 'safer' ]);
+  grunt.registerTask('min', [ 'uglify', 'endline' ]);
   grunt.registerTask('default', [ 'lint', 'min' ]);
 
   return;
