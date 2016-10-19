@@ -20,5 +20,5 @@ backup({
   uri: 'uri', // mongodb://<dbuser>:<dbpassword>@<dbdomain>.mongolab.com:<dbport>/<dbdatabase>
   root: __dirname, // write files into this dir
   collections: [ 'logins' ], // save this collection only
-  tar: 'dump.tar', // save backup inot this tar file
+  tar: 'dump.tar', // save backup into this tar file
 });
