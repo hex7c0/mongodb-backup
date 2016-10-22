@@ -14,6 +14,7 @@
  */
 var systemRegex = /^system\./;
 var fs = require('graceful-fs');
+var path = require('path');
 var BSON;
 var logger;
 var meta;
@@ -57,37 +58,37 @@ function writeMetadata(collection, metadata, next) {
  * make dir
  * 
  * @function makeDir
- * @param {String} path - path of dir
+ * @param {String} pathname - pathname of dir
  * @param {Function} next - callback
  */
-function makeDir(path, next) {
+function makeDir(pathname, next) {
 
-  fs.stat(path, function(err, stats) {
+  fs.stat(pathname, function(err, stats) {
 
     if (err && err.code === 'ENOENT') { // no file or dir
-      logger('make dir at ' + path);
-      return fs.mkdir(path, function(err) {
+      logger('make dir at ' + pathname);
+      return fs.mkdir(pathname, function(err) {
 
-        next(err, path);
+        next(err, pathname);
       });
 
-    } else if (stats && stats.isDirectory() === false) { // path is a file
-      logger('unlink file at ' + path);
-      return fs.unlink(path, function(err) {
+    } else if (stats && stats.isDirectory() === false) { // pathname is a file
+      logger('unlink file at ' + pathname);
+      return fs.unlink(pathname, function(err) {
 
         if (err) { // unlink fail. permission maybe
           return next(err);
         }
 
-        logger('make dir at ' + path);
-        fs.mkdir(path, function(err) {
+        logger('make dir at ' + pathname);
+        fs.mkdir(pathname, function(err) {
 
-          next(err, path);
+          next(err, pathname);
         });
       });
 
     } else { // already a dir
-      next(null, path);
+      next(null, pathname);
     }
   });
 }
@@ -96,35 +97,36 @@ function makeDir(path, next) {
  * remove dir
  * 
  * @function rmDir
- * @param {String} path - path of dir
+ * @param {String} pathname - path of dir
  * @param {Function} [next] - callback
  */
-function rmDir(path, next) {
+function rmDir(pathname, next) {
 
-  fs.readdirSync(path).forEach(function(first) { // database
+  fs.readdirSync(pathname).forEach(function(first) { // database
 
-    var database = path + first;
+    var database = pathname + first;
     if (fs.statSync(database).isDirectory() === false) {
       return next(Error('path is not a Directory'));
     }
 
     var metadata = '';
     var collections = fs.readdirSync(database);
-    if (fs.existsSync(database + '/.metadata') === true) {
-      metadata = database + '/.metadata/';
+    var metadataPath = path.join(database, '.metadata');
+    if (fs.existsSync(metadataPath) === true) {
+      metadata = metadataPath + path.sep;
       delete collections[collections.indexOf('.metadata')]; // undefined is not a dir
     }
 
     collections.forEach(function(second) { // collection
 
-      var collection = database + '/' + second;
+      var collection = path.join(database, second);
       if (fs.statSync(collection).isDirectory() === false) {
         return;
       }
 
       fs.readdirSync(collection).forEach(function(third) { // document
 
-        var document = collection + '/' + third;
+        var document = path.join(collection, third);
         fs.unlinkSync(document);
         return next ? next(null, document) : '';
       });
@@ -197,7 +199,7 @@ function allCollections(db, name, query, metadata, parser, next) {
       }
 
       logger('select collection ' + collection.collectionName);
-      makeDir(name + collection.collectionName + '/', function(err, name) {
+      makeDir(name + collection.collectionName + path.sep, function(err, name) {
 
         if (err) {
           return last === ++index ? next(err) : error(err);
@@ -251,7 +253,7 @@ function allCollectionsScan(db, name, numCursors, metadata, parser, next) {
       }
 
       logger('select collection scan ' + collection.collectionName);
-      makeDir(name + collection.collectionName + '/', function(err, name) {
+      makeDir(name + collection.collectionName + path.sep, function(err, name) {
 
         if (err) {
           return last === ++index ? next(err) : error(err);
@@ -322,7 +324,7 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
       }
 
       logger('select collection ' + collection.collectionName);
-      makeDir(name + collection.collectionName + '/', function(err, name) {
+      makeDir(name + collection.collectionName + path.sep, function(err, name) {
 
         if (err) {
           return last === ++index ? next(err) : error(err);
@@ -376,7 +378,7 @@ function someCollectionsScan(db, name, numCursors, metadata, parser, next,
       }
 
       logger('select collection scan ' + collection.collectionName);
-      makeDir(name + collection.collectionName + '/', function(err, name) {
+      makeDir(name + collection.collectionName + path.sep, function(err, name) {
 
         if (err) {
           return last === ++index ? next(err) : error(err);
@@ -522,7 +524,7 @@ function wrapper(my) {
         return callback(err);
       }
 
-      makeDir(name + db.databaseName + '/', function(err, name) {
+      makeDir(name + db.databaseName + path.sep, function(err, name) {
 
         function go() {
 
@@ -578,7 +580,7 @@ function wrapper(my) {
         if (my.metadata === false) {
           go();
         } else {
-          metadata = name + '.metadata/';
+          metadata = name + '.metadata' + path.sep;
           makeDir(metadata, go);
         }
       });
@@ -595,8 +597,6 @@ function wrapper(my) {
  */
 function backup(options) {
 
-  var resolve = require('path').resolve;
-
   var opt = options || Object.create(null);
   if (!opt.uri) {
     throw new Error('missing uri option');
@@ -610,9 +610,9 @@ function backup(options) {
   }
 
   var my = {
-    dir: __dirname + '/dump/',
+    dir: path.join(__dirname, 'dump', path.sep),
     uri: String(opt.uri),
-    root: resolve(String(opt.root || '')) + '/',
+    root: path.resolve(String(opt.root || '')) + path.sep,
     stream: opt.stream || null,
     parser: opt.parser || 'bson',
     numCursors: ~~opt.numCursors,
@@ -620,7 +620,7 @@ function backup(options) {
     callback: typeof (opt.callback) == 'function' ? opt.callback : null,
     tar: typeof opt.tar === 'string' ? opt.tar : null,
     query: typeof opt.query === 'object' ? opt.query : {},
-    logger: typeof opt.logger === 'string' ? resolve(opt.logger) : null,
+    logger: typeof opt.logger === 'string' ? path.resolve(opt.logger) : null,
     options: typeof opt.options === 'object' ? opt.options : {},
     metadata: Boolean(opt.metadata)
   };
