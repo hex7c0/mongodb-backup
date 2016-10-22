@@ -30,7 +30,9 @@ var meta;
  */
 function error(err) {
 
-  return logger(err.message);
+  if (err) {
+    logger(err.message);
+  }
 }
 
 /**
