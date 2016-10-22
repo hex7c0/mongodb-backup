@@ -433,7 +433,7 @@ function wrapper(my) {
   if (typeof my.parser === 'function') {
     parser = my.parser;
   } else {
-    switch (my.parser) {
+    switch (my.parser.toLowerCase()) {
       case 'bson':
         BSON = require('bson');
         BSON = new BSON.BSONPure.BSON();
