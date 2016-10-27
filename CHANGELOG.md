@@ -1,3 +1,12 @@
+v1.6.7 / 2016-10-27
+==================
+
+  * Tested against `node`@7
+  * Improve pathname join with node API
+  * Prevent logger crash if err is null
+  * Update `bson`@0.5.6
+  * Update `mongodb`@2.2.11
+
 v1.6.6 / 2016-09-20
 ==================
 
