@@ -1,3 +1,11 @@
+v1.6.8 / 2016-11-08
+==================
+
+  * Tested against `node`@7
+  * Remove support for `node`@0
+  * Update `graceful-fs`@4.1.10
+  * Update `logger-request`@3.7.2
+
 v1.6.7 / 2016-10-27
 ==================
 
