@@ -34,11 +34,11 @@
   "devDependencies": {
     "grunt": "~1.0",
     "grunt-contrib-uglify": "~2.0",
-    "grunt-contrib-jshint": "~1.0",
+    "grunt-contrib-jshint": "~1.1",
     "grunt-endline": "~0.6",
     "grunt-safer-regex": "~0.0",
     "istanbul": "~0.4",
-    "mocha": "~3.1",
+    "mocha": "~3.2",
     "mongodb-restore": "~1.6",
     "supertest": "~2.0"
   },
