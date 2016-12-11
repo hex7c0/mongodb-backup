@@ -18,7 +18,7 @@ var fs = require('fs');
 var extname = require('path').extname;
 var client = require('mongodb').MongoClient;
 var BSON = require('bson');
-BSON = new BSON.BSONPure.BSON();
+BSON = new BSON();
 var URI = process.env.URI;
 
 /*

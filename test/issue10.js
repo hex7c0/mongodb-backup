@@ -19,7 +19,7 @@ var mongodb = require('mongodb');
 var bson = require('bson');
 
 var client = mongodb.MongoClient;
-var BSON = new bson.BSONPure.BSON();
+var BSON = new BSON();
 var MLong = mongodb.Long;
 var BLong = bson.BSONPure.Long;
 var Uri = process.env.URI;
