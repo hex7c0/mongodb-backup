@@ -27,7 +27,7 @@
     "bson": "0.5.7",
     "fstream": "1.0.10",
     "graceful-fs": "4.1.11",
-    "logger-request": "3.7.2",
+    "logger-request": "3.7.3",
     "mongodb": "2.2.12",
     "tar": "2.2.1"
   },
