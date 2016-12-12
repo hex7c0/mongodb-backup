@@ -316,9 +316,12 @@ describe('structure', function() {
           logger: l,
           callback: function(err) {
 
-            assert.ifError(err);
-            assert.equal(fs.existsSync(dailyF), true);
-            fs.unlink(dailyF, done);
+            setTimeout(function() {
+
+              assert.ifError(err);
+              assert.equal(fs.existsSync(dailyF), true);
+              fs.unlink(dailyF, done);
+            }, 500);
           }
         });
       });
@@ -637,9 +640,12 @@ describe('structure', function() {
           numCursors: 2,
           callback: function(err) {
 
-            assert.ifError(err);
-            assert.equal(fs.existsSync(dailyF), true);
-            fs.unlink(dailyF, done);
+            setTimeout(function() {
+
+              assert.ifError(err);
+              assert.equal(fs.existsSync(dailyF), true);
+              fs.unlink(dailyF, done);
+            }, 500);
           }
         });
       });
