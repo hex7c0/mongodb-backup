@@ -1,7 +1,14 @@
+v1.6.9 / 2016-12-13
+==================
+
+  * Update `bson`@1.0.1
+  * Update `mongodb`@2.2.16
+  * Update `graceful-fs`@4.1.11
+  * Update `logger-request`@3.7.3
+
 v1.6.8 / 2016-11-08
 ==================
 
-  * Tested against `node`@7
   * Remove support for `node`@0
   * Update `graceful-fs`@4.1.10
   * Update `logger-request`@3.7.2
