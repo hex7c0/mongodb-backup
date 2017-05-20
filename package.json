@@ -38,7 +38,7 @@
     "grunt-endline": "~0.6",
     "grunt-safer-regex": "~0.0",
     "istanbul": "~0.4",
-    "mocha": "~3.3",
+    "mocha": "~3.4",
     "mongodb-restore": "~1.6",
     "supertest": "~3.0"
   },
