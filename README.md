@@ -1,7 +1,7 @@
 # [mongodb-backup](https://github.com/hex7c0/mongodb-backup)
 
 [![NPM version](https://img.shields.io/npm/v/mongodb-backup.svg)](https://www.npmjs.com/package/mongodb-backup)
-[![Linux Status](https://img.shields.io/travis/hex7c0/mongodb-backup.svg?label=linux-osx)](https://travis-ci.org/hex7c0/mongodb-backup)
+[![Linux Status](https://img.shields.io/travis/hex7c0/mongodb-backup.svg?label=linux)](https://travis-ci.org/hex7c0/mongodb-backup)
 [![Windows Status](https://img.shields.io/appveyor/ci/hex7c0/mongodb-backup.svg?label=windows)](https://ci.appveyor.com/project/hex7c0/mongodb-backup)
 [![Dependency Status](https://img.shields.io/david/hex7c0/mongodb-backup.svg)](https://david-dm.org/hex7c0/mongodb-backup)
 [![Coveralls](https://img.shields.io/coveralls/hex7c0/mongodb-backup.svg)](https://coveralls.io/r/hex7c0/mongodb-backup)
