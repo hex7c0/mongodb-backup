@@ -19,28 +19,30 @@ var BSON;
 var logger;
 var meta;
 
-var fileSystemDocumentStore = function (root) {
+var documentStore = undefined;
+
+var fileSystemDocumentStore = function(root) {
   var dbDir = root;
-  var makeDir = function (pathname, next) {
-    fs.stat(pathname, function (err, stats) {
+  var makeDir = function(pathname, next) {
+    fs.stat(pathname, function(err, stats) {
 
       if (err && err.code === 'ENOENT') { // no file or dir
         logger('make dir at ' + pathname);
-        return fs.mkdirp(pathname, function (err) {
+        return fs.mkdirp(pathname, function(err) {
 
           next(err, pathname);
         });
 
       } else if (stats && stats.isDirectory() === false) { // pathname is a file
         logger('unlink file at ' + pathname);
-        return fs.unlink(pathname, function (err) {
+        return fs.unlink(pathname, function(err) {
 
           if (err) { // unlink fail. permission maybe
             return next(err);
           }
 
           logger('make dir at ' + pathname);
-          fs.mkdir(pathname, function (err) {
+          fs.mkdir(pathname, function(err) {
 
             next(err, pathname);
           });
@@ -52,7 +54,7 @@ var fileSystemDocumentStore = function (root) {
     });
   };
   return {
-    addDatabase: function (dbName, next) {
+    addDatabase: function(dbName, next) {
       dbDir = path.join(root, dbName);
       return makeDir(dbDir, next);
     },
@@ -63,12 +65,12 @@ var fileSystemDocumentStore = function (root) {
     store: function store(collectionName, relativePath, content, callback) {
       fs.writeFile(path.join(dbDir, collectionName, relativePath), content, callback);
     },
-    close: function () {
+    close: function() {
     }
   };
 };
 
-var streamingDocumentStore = function (root, stream) {
+var streamingDocumentStore = function(root, stream) {
   var tar = require('tar-stream');
   var pack = tar.pack(); // pack is a streams2 stream
   pack.pipe(stream);
@@ -124,15 +126,15 @@ function error(err) {
  * @param {String} metadata - path of metadata
  * @param {Function} next - callback
  */
-function writeMetadata(documentStore) {
-  return function (collection, metadata, next) {
-    return collection.indexes(function (err, indexes) {
-      if (err) {
-        return next(err);
-      }
-      documentStore.store('.metadata', collection.collectionName, JSON.stringify(indexes), next);
-    });
-  };
+function writeMetadata(collection, metadata, next) {
+
+  return collection.indexes(function(err, indexes) {
+
+    if (err) {
+      return next(err);
+    }
+    documentStore.store('.metadata', collection.collectionName, JSON.stringify(indexes), next);
+  });
 }
 
 
@@ -143,10 +145,9 @@ function writeMetadata(documentStore) {
  * @param {Objecy} doc - document from stream
  * @param {String} collectionPath - path of collection
  */
-function toJsonAsync(documentStore) {
-  return function (doc, collectionPath) {
-    documentStore.store(collectionPath, doc._id + '.json', JSON.stringify(doc));
-  };
+function toJsonAsync(doc, collectionPath) {
+
+  documentStore.store(collectionPath, doc._id + '.json', JSON.stringify(doc));
 }
 
 /**
@@ -156,10 +157,9 @@ function toJsonAsync(documentStore) {
  * @param {Objecy} doc - document from stream
  * @param {String} collectionPath - path of collection
  */
-function toBsonAsync(documentStore) {
-  return function (doc, collectionPath) {
-    documentStore.store(collectionPath, doc._id + '.bson', BSON.serialize(doc));
-  };
+function toBsonAsync(doc, collectionPath) {
+
+  documentStore.store(collectionPath, doc._id + '.bson', BSON.serialize(doc));
 }
 
 /**
@@ -173,49 +173,47 @@ function toBsonAsync(documentStore) {
  * @param {Function} parser - data parser
  * @param {Function} next - callback
  */
-function allCollections(documentStore) {
-  return function (db, name, query, metadata, parser, next) {
+function allCollections(db, name, query, metadata, parser, next) {
 
-    return db.collections(function (err, collections) {
+  return db.collections(function(err, collections) {
 
-      if (err) {
-        return next(err);
+    if (err) {
+      return next(err);
+    }
+
+    var last = ~~collections.length, index = 0;
+    if (last === 0) { // empty set
+      return next(err);
+    }
+
+    collections.forEach(function(collection) {
+
+      if (systemRegex.test(collection.collectionName) === true) {
+        return last === ++index ? next(null) : null;
       }
 
-      var last = ~~collections.length, index = 0;
-      if (last === 0) { // empty set
-        return next(err);
-      }
+      logger('select collection ' + collection.collectionName);
+      documentStore.addCollection(collection.collectionName, function(err) {
 
-      collections.forEach(function (collection) {
-
-        if (systemRegex.test(collection.collectionName) === true) {
-          return last === ++index ? next(null) : null;
+        if (err) {
+          return last === ++index ? next(err) : error(err);
         }
 
-        logger('select collection ' + collection.collectionName);
-        documentStore.addCollection(collection.collectionName, function (err) {
+        meta(collection, metadata, function() {
 
-          if (err) {
-            return last === ++index ? next(err) : error(err);
-          }
+          var stream = collection.find(query).snapshot(true).stream();
 
-          meta(collection, metadata, function () {
+          stream.once('end', function() {
 
-            var stream = collection.find(query).snapshot(true).stream();
+            return last === ++index ? next(null) : null;
+          }).on('data', function(doc) {
 
-            stream.once('end', function () {
-
-              return last === ++index ? next(null) : null;
-            }).on('data', function (doc) {
-
-              parser(doc, collection.collectionName);
-            });
+            parser(doc, collection.collectionName);
           });
         });
       });
     });
-  };
+  });
 }
 
 /**
@@ -229,67 +227,65 @@ function allCollections(documentStore) {
  * @param {Function} parser - data parser
  * @param {Function} next - callback
  */
-function allCollectionsScan(documentStore) {
-  return function (db, name, numCursors, metadata, parser, next) {
+function allCollectionsScan(db, name, numCursors, metadata, parser, next) {
 
-    return db.collections(function (err, collections) {
+  return db.collections(function(err, collections) {
 
-      if (err) {
-        return next(err);
+    if (err) {
+      return next(err);
+    }
+
+    var last = ~~collections.length, index = 0;
+    if (last === 0) { // empty set
+      return next(null);
+    }
+
+    collections.forEach(function(collection) {
+
+      if (systemRegex.test(collection.collectionName) === true) {
+        return last === ++index ? next(null) : null;
       }
 
-      var last = ~~collections.length, index = 0;
-      if (last === 0) { // empty set
-        return next(null);
-      }
+      logger('select collection scan ' + collection.collectionName);
+      documentStore.addCollection(collection.collectionName, function(err) {
 
-      collections.forEach(function (collection) {
-
-        if (systemRegex.test(collection.collectionName) === true) {
-          return last === ++index ? next(null) : null;
+        if (err) {
+          return last === ++index ? next(err) : error(err);
         }
 
-        logger('select collection scan ' + collection.collectionName);
-        documentStore.addCollection(collection.collectionName, function (err) {
+        meta(collection, metadata, function() {
 
-          if (err) {
-            return last === ++index ? next(err) : error(err);
-          }
+          collection.parallelCollectionScan({
+            numCursors: numCursors
+          }, function(err, cursors) {
 
-          meta(collection, metadata, function () {
+            if (err) {
+              return last === ++index ? next(err) : error(err);
+            }
 
-            collection.parallelCollectionScan({
-              numCursors: numCursors
-            }, function (err, cursors) {
+            var ii, cursorsDone;
+            ii = cursorsDone = ~~cursors.length;
+            if (ii === 0) { // empty set
+              return last === ++index ? next(null) : null;
+            }
 
-              if (err) {
-                return last === ++index ? next(err) : error(err);
-              }
+            for (var i = 0; i < ii; ++i) {
+              cursors[i].once('end', function() {
 
-              var ii, cursorsDone;
-              ii = cursorsDone = ~~cursors.length;
-              if (ii === 0) { // empty set
-                return last === ++index ? next(null) : null;
-              }
+                // No more cursors let's ensure we got all results
+                if (--cursorsDone === 0) {
+                  return last === ++index ? next(null) : null;
+                }
+              }).on('data', function(doc) {
 
-              for (var i = 0; i < ii; ++i) {
-                cursors[i].once('end', function () {
-
-                  // No more cursors let's ensure we got all results
-                  if (--cursorsDone === 0) {
-                    return last === ++index ? next(null) : null;
-                  }
-                }).on('data', function (doc) {
-
-                  parser(doc, collection.collectionName);
-                });
-              }
-            });
+                parser(doc, collection.collectionName);
+              });
+            }
           });
         });
       });
     });
-  };
+  });
 }
 
 /**
@@ -304,47 +300,45 @@ function allCollectionsScan(documentStore) {
  * @param {Function} next - callback
  * @param {Array} collections - selected collections
  */
-function someCollections(documentStore) {
-  return function (db, name, query, metadata, parser, next, collections) {
+function someCollections(db, name, query, metadata, parser, next, collections) {
 
-    var last = ~~collections.length, index = 0;
-    if (last === 0) {
-      return next(null);
-    }
+  var last = ~~collections.length, index = 0;
+  if (last === 0) {
+    return next(null);
+  }
 
-    collections.forEach(function (collection) {
+  collections.forEach(function(collection) {
 
-      db.collection(collection, {
-        strict: true
-      }, function (err, collection) {
+    db.collection(collection, {
+      strict: true
+    }, function(err, collection) {
 
-        if (err) { // returns an error if the collection does not exist
+      if (err) { // returns an error if the collection does not exist
+        return last === ++index ? next(err) : error(err);
+      }
+
+      logger('select collection ' + collection.collectionName);
+      documentStore.addCollection(collection.collectionName, function(err) {
+
+        if (err) {
           return last === ++index ? next(err) : error(err);
         }
 
-        logger('select collection ' + collection.collectionName);
-        documentStore.addCollection(collection.collectionName, function (err) {
+        meta(collection, metadata, function() {
 
-          if (err) {
-            return last === ++index ? next(err) : error(err);
-          }
+          var stream = collection.find(query).snapshot(true).stream();
 
-          meta(collection, metadata, function () {
+          stream.once('end', function() {
 
-            var stream = collection.find(query).snapshot(true).stream();
+            return last === ++index ? next(null) : null;
+          }).on('data', function(doc) {
 
-            stream.once('end', function () {
-
-              return last === ++index ? next(null) : null;
-            }).on('data', function (doc) {
-
-              parser(doc, collection.collectionName);
-            });
+            parser(doc, collection.collectionName);
           });
         });
       });
     });
-  };
+  });
 }
 
 /**
@@ -359,66 +353,64 @@ function someCollections(documentStore) {
  * @param {Function} next - callback
  * @param {Array} collections - selected collections
  */
-function someCollectionsScan(documentStore) {
-  return function (db, name, numCursors, metadata, parser, next,
-                   collections) {
+function someCollectionsScan(db, name, numCursors, metadata, parser, next,
+                             collections) {
 
-    var last = ~~collections.length, index = 0;
-    if (last === 0) { // empty set
-      return next(null);
-    }
+  var last = ~~collections.length, index = 0;
+  if (last === 0) { // empty set
+    return next(null);
+  }
 
-    collections.forEach(function (collection) {
+  collections.forEach(function(collection) {
 
-      db.collection(collection, {
-        strict: true
-      }, function (err, collection) {
+    db.collection(collection, {
+      strict: true
+    }, function(err, collection) {
 
-        if (err) { // returns an error if the collection does not exist
+      if (err) { // returns an error if the collection does not exist
+        return last === ++index ? next(err) : error(err);
+      }
+
+      logger('select collection scan ' + collection.collectionName);
+      documentStore.addCollection(collection.collectionName, function(err) {
+
+        if (err) {
           return last === ++index ? next(err) : error(err);
         }
 
-        logger('select collection scan ' + collection.collectionName);
-        documentStore.addCollection(collection.collectionName, function (err) {
+        meta(collection, metadata, function() {
 
-          if (err) {
-            return last === ++index ? next(err) : error(err);
-          }
+          collection.parallelCollectionScan({
+            numCursors: numCursors
+          }, function(err, cursors) {
 
-          meta(collection, metadata, function () {
+            if (err) {
+              return last === ++index ? next(err) : error(err);
+            }
 
-            collection.parallelCollectionScan({
-              numCursors: numCursors
-            }, function (err, cursors) {
+            var ii, cursorsDone;
+            ii = cursorsDone = ~~cursors.length;
+            if (ii === 0) { // empty set
+              return last === ++index ? next(null) : null;
+            }
 
-              if (err) {
-                return last === ++index ? next(err) : error(err);
-              }
+            for (var i = 0; i < ii; ++i) {
+              cursors[i].once('end', function() {
 
-              var ii, cursorsDone;
-              ii = cursorsDone = ~~cursors.length;
-              if (ii === 0) { // empty set
-                return last === ++index ? next(null) : null;
-              }
+                // No more cursors let's ensure we got all results
+                if (--cursorsDone === 0) {
+                  return last === ++index ? next(null) : null;
+                }
+              }).on('data', function(doc) {
 
-              for (var i = 0; i < ii; ++i) {
-                cursors[i].once('end', function () {
-
-                  // No more cursors let's ensure we got all results
-                  if (--cursorsDone === 0) {
-                    return last === ++index ? next(null) : null;
-                  }
-                }).on('data', function (doc) {
-
-                  parser(doc, collection.collectionName);
-                });
-              }
-            });
+                parser(doc, collection.collectionName);
+              });
+            }
           });
         });
       });
     });
-  };
+  });
 }
 
 /**
@@ -437,31 +429,31 @@ function wrapper(my) {
       case 'bson':
         BSON = require('bson');
         BSON = new BSON();
-        parser = toBsonAsync(my.documentStore);
+        parser = toBsonAsync;
         break;
       case 'json':
         // JSON error on ObjectId, Date and Long
-        parser = toJsonAsync(my.documentStore);
+        parser = toJsonAsync;
         break;
       default:
         throw new Error('missing parser option');
     }
   }
 
-  var discriminator = allCollections(my.documentStore);
+  var discriminator = allCollections;
   if (my.collections !== null) {
-    discriminator = someCollections(my.documentStore);
+    discriminator = someCollections;
     if (my.numCursors) {
-      discriminator = someCollectionsScan(my.documentStore);
+      discriminator = someCollectionsScan;
       my.query = my.numCursors; // override
     }
   } else if (my.numCursors) {
-    discriminator = allCollectionsScan(my.documentStore);
+    discriminator = allCollectionsScan;
     my.query = my.numCursors; // override
   }
 
   if (my.logger === null) {
-    logger = function () {
+    logger = function() {
 
       return;
     };
@@ -479,7 +471,7 @@ function wrapper(my) {
     logger('backup start');
     var log = require('mongodb').Logger;
     log.setLevel('info');
-    log.setCurrentLogger(function (msg) {
+    log.setCurrentLogger(function(msg) {
 
       return logger(msg);
     });
@@ -487,9 +479,9 @@ function wrapper(my) {
 
   var metadata = '';
   if (my.metadata === true) {
-    meta = writeMetadata(my.documentStore);
+    meta = writeMetadata;
   } else {
-    meta = function (a, b, c) {
+    meta = function(a, b, c) {
 
       return c();
     };
@@ -512,20 +504,20 @@ function wrapper(my) {
     }
   }
 
-  require('mongodb').MongoClient.connect(my.uri, my.options, function (err, db) {
+  require('mongodb').MongoClient.connect(my.uri, my.options, function(err, db) {
 
     logger('db open');
     if (err) {
       return callback(err);
     }
 
-    my.documentStore.addDatabase(db.databaseName, function (err, name) {
+    documentStore.addDatabase(db.databaseName, function(err, name) {
 
       function go() {
 
         // waiting for `db.fsyncLock()` on node driver
         return discriminator(db, name, my.query, metadata, parser,
-          function (err) {
+          function(err) {
 
             logger('db close');
             db.close();
@@ -533,7 +525,7 @@ function wrapper(my) {
               return callback(err);
             }
 
-            my.documentStore.close();
+            documentStore.close();
             callback(null);
           }, my.collections);
       }
@@ -545,7 +537,7 @@ function wrapper(my) {
       if (my.metadata === false) {
         go();
       } else {
-        my.documentStore.addCollection('.metadata', go);
+        documentStore.addCollection('.metadata', go);
       }
     });
   });
@@ -591,14 +583,10 @@ function backup(options) {
   }
   if (my.stream) {
     my.tar = true; // override
-    my.documentStore = streamingDocumentStore(my.root, my.stream);
+    documentStore = streamingDocumentStore(my.root, my.stream);
   } else {
-    my.documentStore = fileSystemDocumentStore(my.root);
+    documentStore = fileSystemDocumentStore(my.root);
   }
   return wrapper(my);
 }
 module.exports = backup;
-
-
-
-
