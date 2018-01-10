@@ -20,7 +20,8 @@ var http = require('http');
 http.createServer(function(req, res) {
 
   res.writeHead(200, {
-    'Content-Type': 'application/x-tar' // force header for tar download
+        'Content-Type': 'application/x-tar', // force header for tar download
+        'Content-disposition': 'attachment; filename='+Date.now()+'-mongodump.tar' //set the name of downloaded dump :)
   });
 
   backup({
