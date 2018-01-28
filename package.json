@@ -33,12 +33,12 @@
   },
   "devDependencies": {
     "grunt": "~1.0",
-    "grunt-contrib-uglify": "~3.0",
+    "grunt-contrib-uglify": "~3.3",
     "grunt-contrib-jshint": "~1.1",
-    "grunt-endline": "~0.6",
-    "grunt-safer-regex": "~0.0",
+    "grunt-endline": "~0.7",
+    "grunt-safer-regex": "~0.1",
     "istanbul": "~0.4",
-    "mocha": "~3.4",
+    "mocha": "~4.1",
     "mongodb-restore": "~1.6",
     "supertest": "~3.0"
   },
@@ -46,7 +46,8 @@
     "node": ">=4"
   },
   "scripts": {
-    "prepublish": "npm prune",
+    "prepare": "npm prune",
+    "prepublishOnly": "grunt",
     "test": "mocha --bail --check-leaks --globals Promise --timeout 10000",
     "test-cov": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --timeout 10000"
   },
