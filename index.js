@@ -19,7 +19,7 @@ var BSON;
 var logger;
 var meta;
 
-var documentStore = undefined;
+var documentStore;
 
 var fileSystemDocumentStore = function(root) {
   var dbDir = root;
@@ -513,8 +513,8 @@ function wrapper(my) {
   }
 
   require('mongodb').MongoClient.connect(my.uri, my.options).then(function(database) {
-    const databaseName = database.s.options.dbName;
-    let db = database.db(databaseName);
+    var databaseName = database.s.options.dbName;
+    var db = database.db(databaseName);
 
     logger('db open');
 
@@ -547,7 +547,7 @@ function wrapper(my) {
         documentStore.addCollection('.metadata', go);
       }
     });
-  }).catch((err) => {
+  }).catch(function (err) {
     return callback(err);
   });
 }
