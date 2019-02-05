@@ -573,9 +573,14 @@ function backup(options) {
     }
   }
 
+  var rootPath = opt.root || '';
+  if (rootPath !== '') {
+    rootPath = path.resolve(String(opt.root || ''));
+  }
+
   var my = {
     uri: String(opt.uri),
-    root: path.resolve(String(opt.root || '')) + path.sep,
+    root: rootPath + path.sep,
     stream: opt.stream || null,
     parser: opt.parser || 'bson',
     numCursors: ~~opt.numCursors,
