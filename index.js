@@ -201,7 +201,11 @@ function allCollections(db, name, query, metadata, parser, next) {
 
         meta(collection, metadata, function() {
 
-          var stream = collection.find(query).snapshot(true).stream();
+          var stream = collection.find(query)
+            // NOTE: snapshot was deprecated
+            // See: http://mongodb.github.io/node-mongodb-native/3.1/api/Cursor.html#snapshot
+            // .snapshot(true)
+            .stream();
 
           stream.once('end', function() {
 
@@ -326,7 +330,11 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
 
         meta(collection, metadata, function() {
 
-          var stream = collection.find(query).snapshot(true).stream();
+          var stream = collection.find(query)
+            // NOTE: snapshot was deprecated
+            // See: http://mongodb.github.io/node-mongodb-native/3.1/api/Cursor.html#snapshot
+            // .snapshot(true)
+            .stream();
 
           stream.once('end', function() {
 
@@ -504,14 +512,13 @@ function wrapper(my) {
     }
   }
 
-  require('mongodb').MongoClient.connect(my.uri, my.options, function(err, db) {
+  require('mongodb').MongoClient.connect(my.uri, my.options).then(function(database) {
+    const databaseName = database.s.options.dbName;
+    let db = database.db(databaseName);
 
     logger('db open');
-    if (err) {
-      return callback(err);
-    }
 
-    documentStore.addDatabase(db.databaseName, function(err, name) {
+    documentStore.addDatabase(databaseName, function(err, name) {
 
       function go() {
 
@@ -520,7 +527,7 @@ function wrapper(my) {
           function(err) {
 
             logger('db close');
-            db.close();
+            database.close();
             if (err) {
               return callback(err);
             }
@@ -540,6 +547,8 @@ function wrapper(my) {
         documentStore.addCollection('.metadata', go);
       }
     });
+  }).catch((err) => {
+    return callback(err);
   });
 }
 
