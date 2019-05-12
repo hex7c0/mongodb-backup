@@ -201,11 +201,7 @@ function allCollections(db, name, query, metadata, parser, next) {
 
         meta(collection, metadata, function() {
 
-          var stream = collection.find(query)
-            // NOTE: snapshot was deprecated
-            // See: http://mongodb.github.io/node-mongodb-native/3.1/api/Cursor.html#snapshot
-            // .snapshot(true)
-            .stream();
+          var stream = collection.find({ $query: query, $snapshot: true }).stream();
 
           stream.once('end', function() {
 
@@ -330,11 +326,7 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
 
         meta(collection, metadata, function() {
 
-          var stream = collection.find(query)
-            // NOTE: snapshot was deprecated
-            // See: http://mongodb.github.io/node-mongodb-native/3.1/api/Cursor.html#snapshot
-            // .snapshot(true)
-            .stream();
+          var stream = collection.find({ $query: query, $snapshot: true }).stream();
 
           stream.once('end', function() {
 
