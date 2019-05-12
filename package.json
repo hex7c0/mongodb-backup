@@ -1,6 +1,6 @@
 {
-  "version": "1.6.9",
-  "name": "mongodb-backup",
+  "version": "3.2.0",
+  "name": "mongodb-backup-4x",
   "description": "backup for mongodb",
   "keywords": [
     "mongodb",
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hex7c0/mongodb-backup.git"
+    "url": "https://github.com/phoscur/mongodb-backup.git"
   },
   "bugs": {
     "url": "https://github.com/hex7c0/mongodb-backup/issues",
