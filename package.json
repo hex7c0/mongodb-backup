@@ -33,9 +33,9 @@
     "tar-stream": "^1.5.4"
   },
   "devDependencies": {
-    "grunt": "~1.0",
-    "grunt-contrib-uglify": "~3.3",
+    "grunt": "^1.0.4",
     "grunt-contrib-jshint": "~1.1",
+    "grunt-contrib-uglify": "~3.3",
     "grunt-endline": "~0.7",
     "grunt-safer-regex": "~0.1",
     "istanbul": "~0.4",
