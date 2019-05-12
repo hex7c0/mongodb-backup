@@ -209,7 +209,7 @@ function allCollections(db, name, query, metadata, parser, next) {
 
         meta(collection, metadata, function() {
 
-          var stream = collection.find(query).snapshot(true).stream();
+          var stream = collection.find({ $query: query, $snapshot: true }).stream();
 
           stream.once('end', function() {
 
@@ -334,7 +334,7 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
 
         meta(collection, metadata, function() {
 
-          var stream = collection.find(query).snapshot(true).stream();
+          var stream = collection.find({ $query: query, $snapshot: true }).stream();
 
           stream.once('end', function() {
 
