@@ -13,18 +13,101 @@
  * initialize module
  */
 var systemRegex = /^system\./;
-var fs = require('graceful-fs');
+var fs = require('graceful-fs').gracefulify(require('fs-extra'));
 var path = require('path');
 var BSON;
 var logger;
 var meta;
+
+var documentStore;
+
+var fileSystemDocumentStore = function(root) {
+  var dbDir = root;
+  var makeDir = function(pathname, next) {
+    fs.stat(pathname, function(err, stats) {
+
+      if (err && err.code === 'ENOENT') { // no file or dir
+        logger('make dir at ' + pathname);
+        return fs.mkdirp(pathname, function(err) {
+
+          next(err, pathname);
+        });
+
+      } else if (stats && stats.isDirectory() === false) { // pathname is a file
+        logger('unlink file at ' + pathname);
+        return fs.unlink(pathname, function(err) {
+
+          if (err) { // unlink fail. permission maybe
+            return next(err);
+          }
+
+          logger('make dir at ' + pathname);
+          fs.mkdir(pathname, function(err) {
+
+            next(err, pathname);
+          });
+        });
+
+      } else { // already a dir
+        next(null, pathname);
+      }
+    });
+  };
+  return {
+    addDatabase: function(dbName, next) {
+      dbDir = path.join(root, dbName);
+      return makeDir(dbDir, next);
+    },
+    addCollection: function addCollection(relativePath, next) {
+      var pathname = path.join(dbDir, relativePath);
+      return makeDir(pathname, next);
+    },
+    store: function store(collectionName, relativePath, content, callback) {
+      fs.writeFile(path.join(dbDir, collectionName, relativePath), content, callback);
+    },
+    close: function() {
+    }
+  };
+};
+
+var streamingDocumentStore = function(root, stream) {
+  var tar = require('tar-stream');
+  var pack = tar.pack(); // pack is a streams2 stream
+  pack.pipe(stream);
+
+  var dbDir = root;
+  return {
+    addDatabase: function addDatabase(dbName, next) {
+      dbDir = path.join(root, dbName);
+      pack.entry({name: dbDir, type: 'directory'});
+      next();
+    },
+
+    addCollection: function addCollection(filename, next) {
+      if (filename !== '') {
+        pack.entry({name: path.join(dbDir, filename), type: 'directory'});
+      }
+      next();
+    },
+
+    store: function store(collectionName, filename, content, callback) {
+      pack.entry({name: path.join(dbDir, collectionName, filename)}, content);
+      if (callback) {
+        callback();
+      }
+    },
+    close: function close() {
+      pack.finalize();
+    }
+  };
+};
 
 /*
  * functions
  */
 /**
  * error handler
- * 
+ *
  * @function error
  * @param {Object} err - raised error
  */
@@ -37,7 +120,7 @@ function error(err) {
 
 /**
  * save collection metadata to file
- * 
+ *
  * @function writeMetadata
  * @param {Object} collection - db collection
  * @param {String} metadata - path of metadata
@@ -50,129 +133,38 @@ function writeMetadata(collection, metadata, next) {
     if (err) {
       return next(err);
     }
-
-    fs.writeFile(metadata + collection.collectionName, JSON.stringify(indexes),
-      next);
+    documentStore.store('.metadata', collection.collectionName, JSON.stringify(indexes), next);
   });
 }
 
-/**
- * make dir
- * 
- * @function makeDir
- * @param {String} pathname - pathname of dir
- * @param {Function} next - callback
- */
-function makeDir(pathname, next) {
-
-  fs.stat(pathname, function(err, stats) {
-
-    if (err && err.code === 'ENOENT') { // no file or dir
-      logger('make dir at ' + pathname);
-      return fs.mkdir(pathname, function(err) {
-
-        next(err, pathname);
-      });
-
-    } else if (stats && stats.isDirectory() === false) { // pathname is a file
-      logger('unlink file at ' + pathname);
-      return fs.unlink(pathname, function(err) {
-
-        if (err) { // unlink fail. permission maybe
-          return next(err);
-        }
-
-        logger('make dir at ' + pathname);
-        fs.mkdir(pathname, function(err) {
-
-          next(err, pathname);
-        });
-      });
-
-    } else { // already a dir
-      next(null, pathname);
-    }
-  });
-}
-
-/**
- * remove dir
- * 
- * @function rmDir
- * @param {String} pathname - path of dir
- * @param {Function} [next] - callback
- */
-function rmDir(pathname, next) {
-
-  fs.readdirSync(pathname).forEach(function(first) { // database
-
-    var database = pathname + first;
-    if (fs.statSync(database).isDirectory() === false) {
-      return next(Error('path is not a Directory'));
-    }
-
-    var metadata = '';
-    var collections = fs.readdirSync(database);
-    var metadataPath = path.join(database, '.metadata');
-    if (fs.existsSync(metadataPath) === true) {
-      metadata = metadataPath + path.sep;
-      delete collections[collections.indexOf('.metadata')]; // undefined is not a dir
-    }
-
-    collections.forEach(function(second) { // collection
-
-      var collection = path.join(database, second);
-      if (fs.statSync(collection).isDirectory() === false) {
-        return;
-      }
-
-      fs.readdirSync(collection).forEach(function(third) { // document
-
-        var document = path.join(collection, third);
-        fs.unlinkSync(document);
-        return next ? next(null, document) : '';
-      });
-
-      if (metadata !== '') {
-        fs.unlinkSync(metadata + second);
-      }
-      fs.rmdirSync(collection);
-    });
-
-    if (metadata !== '') {
-      fs.rmdirSync(metadata);
-    }
-    return fs.rmdirSync(database);
-  });
-}
 
 /**
  * JSON parser async
- * 
+ *
  * @function toJson
  * @param {Objecy} doc - document from stream
  * @param {String} collectionPath - path of collection
  */
 function toJsonAsync(doc, collectionPath) {
 
-  fs.writeFile(collectionPath + doc._id + '.json', JSON.stringify(doc));
+  documentStore.store(collectionPath, doc._id + '.json', JSON.stringify(doc));
 }
 
 /**
  * BSON parser async
- * 
+ *
  * @function toBson
  * @param {Objecy} doc - document from stream
  * @param {String} collectionPath - path of collection
  */
 function toBsonAsync(doc, collectionPath) {
 
-  fs.writeFile(collectionPath + doc._id + '.bson', BSON.serialize(doc));
+  documentStore.store(collectionPath, doc._id + '.bson', BSON.serialize(doc));
 }
 
 /**
  * get data from all available collections
- * 
+ *
  * @function allCollections
  * @param {Object} db - database
  * @param {String} name - path of dir
@@ -201,7 +193,7 @@ function allCollections(db, name, query, metadata, parser, next) {
       }
 
       logger('select collection ' + collection.collectionName);
-      makeDir(name + collection.collectionName + path.sep, function(err, name) {
+      documentStore.addCollection(collection.collectionName, function(err) {
 
         if (err) {
           return last === ++index ? next(err) : error(err);
@@ -209,14 +201,14 @@ function allCollections(db, name, query, metadata, parser, next) {
 
         meta(collection, metadata, function() {
 
-          var stream = collection.find(query).snapshot(true).stream();
+          var stream = collection.find({ $query: query, $snapshot: true }).stream();
 
           stream.once('end', function() {
 
             return last === ++index ? next(null) : null;
           }).on('data', function(doc) {
 
-            parser(doc, name);
+            parser(doc, collection.collectionName);
           });
         });
       });
@@ -226,7 +218,7 @@ function allCollections(db, name, query, metadata, parser, next) {
 
 /**
  * get data from all available collections without query (parallelCollectionScan)
- * 
+ *
  * @function allCollectionsScan
  * @param {Object} db - database
  * @param {String} name - path of dir
@@ -255,7 +247,7 @@ function allCollectionsScan(db, name, numCursors, metadata, parser, next) {
       }
 
       logger('select collection scan ' + collection.collectionName);
-      makeDir(name + collection.collectionName + path.sep, function(err, name) {
+      documentStore.addCollection(collection.collectionName, function(err) {
 
         if (err) {
           return last === ++index ? next(err) : error(err);
@@ -286,7 +278,7 @@ function allCollectionsScan(db, name, numCursors, metadata, parser, next) {
                 }
               }).on('data', function(doc) {
 
-                parser(doc, name);
+                parser(doc, collection.collectionName);
               });
             }
           });
@@ -298,7 +290,7 @@ function allCollectionsScan(db, name, numCursors, metadata, parser, next) {
 
 /**
  * get data from some collections
- * 
+ *
  * @function someCollections
  * @param {Object} db - database
  * @param {String} name - path of dir
@@ -326,7 +318,7 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
       }
 
       logger('select collection ' + collection.collectionName);
-      makeDir(name + collection.collectionName + path.sep, function(err, name) {
+      documentStore.addCollection(collection.collectionName, function(err) {
 
         if (err) {
           return last === ++index ? next(err) : error(err);
@@ -334,14 +326,14 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
 
         meta(collection, metadata, function() {
 
-          var stream = collection.find(query).snapshot(true).stream();
+          var stream = collection.find({ $query: query, $snapshot: true }).stream();
 
           stream.once('end', function() {
 
             return last === ++index ? next(null) : null;
           }).on('data', function(doc) {
 
-            parser(doc, name);
+            parser(doc, collection.collectionName);
           });
         });
       });
@@ -351,7 +343,7 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
 
 /**
  * get data from some collections without query (parallelCollectionScan)
- * 
+ *
  * @function someCollectionsScan
  * @param {Object} db - database
  * @param {String} name - path of dir
@@ -380,7 +372,7 @@ function someCollectionsScan(db, name, numCursors, metadata, parser, next,
       }
 
       logger('select collection scan ' + collection.collectionName);
-      makeDir(name + collection.collectionName + path.sep, function(err, name) {
+      documentStore.addCollection(collection.collectionName, function(err) {
 
         if (err) {
           return last === ++index ? next(err) : error(err);
@@ -411,7 +403,7 @@ function someCollectionsScan(db, name, numCursors, metadata, parser, next,
                 }
               }).on('data', function(doc) {
 
-                parser(doc, name);
+                parser(doc, collection.collectionName);
               });
             }
           });
@@ -423,7 +415,7 @@ function someCollectionsScan(db, name, numCursors, metadata, parser, next,
 
 /**
  * function wrapper
- * 
+ *
  * @function wrapper
  * @param {Object} my - parsed options
  */
@@ -497,7 +489,7 @@ function wrapper(my) {
 
   /**
    * latest callback
-   * 
+   *
    * @return {Null}
    */
   function callback(err) {
@@ -512,87 +504,49 @@ function wrapper(my) {
     }
   }
 
-  require('mongodb').MongoClient.connect(my.uri, my.options, function(err, db) {
+  require('mongodb').MongoClient.connect(my.uri, my.options).then(function(database) {
+    var databaseName = database.s.options.dbName;
+    var db = database.db(databaseName);
 
     logger('db open');
-    if (err) {
-      return callback(err);
-    }
 
-    var root = my.tar === null ? my.root : my.dir;
-    makeDir(root, function(err, name) {
+    documentStore.addDatabase(databaseName, function(err, name) {
+
+      function go() {
+
+        // waiting for `db.fsyncLock()` on node driver
+        return discriminator(db, name, my.query, metadata, parser,
+          function(err) {
+
+            logger('db close');
+            database.close();
+            if (err) {
+              return callback(err);
+            }
+
+            documentStore.close();
+            callback(null);
+          }, my.collections);
+      }
 
       if (err) {
         return callback(err);
       }
 
-      makeDir(name + db.databaseName + path.sep, function(err, name) {
-
-        function go() {
-
-          // waiting for `db.fsyncLock()` on node driver
-          return discriminator(db, name, my.query, metadata, parser,
-            function(err) {
-
-              logger('db close');
-              db.close();
-              if (err) {
-                return callback(err);
-              }
-
-              if (my.tar) {
-                makeDir(my.root, function(e, name) {
-
-                  if (err) {
-                    error(err);
-                  }
-
-                  var dest;
-                  if (my.stream) { // user stream
-                    logger('send tar file to stream');
-                    dest = my.stream;
-                  } else { // filesystem stream
-                    logger('make tar file at ' + name + my.tar);
-                    dest = fs.createWriteStream(name + my.tar);
-                  }
-
-                  var packer = require('tar').Pack().on('error', callback).on(
-                    'end', function() {
-
-                      rmDir(root);
-                      callback(null);
-                    });
-
-                  require('fstream').Reader({
-                    path: root + db.databaseName,
-                    type: 'Directory'
-                  }).on('error', callback).pipe(packer).pipe(dest);
-                });
-
-              } else {
-                callback(null);
-              }
-            }, my.collections);
-        }
-
-        if (err) {
-          return callback(err);
-        }
-
-        if (my.metadata === false) {
-          go();
-        } else {
-          metadata = name + '.metadata' + path.sep;
-          makeDir(metadata, go);
-        }
-      });
+      if (my.metadata === false) {
+        go();
+      } else {
+        documentStore.addCollection('.metadata', go);
+      }
     });
+  }).catch(function (err) {
+    return callback(err);
   });
 }
 
 /**
  * option setting
- * 
+ *
  * @exports backup
  * @function backup
  * @param {Object} options - various options. Check README.md
@@ -611,10 +565,14 @@ function backup(options) {
     }
   }
 
+  var rootPath = opt.root || '';
+  if (rootPath !== '') {
+    rootPath = path.resolve(String(opt.root || ''));
+  }
+
   var my = {
-    dir: path.join(__dirname, 'dump', path.sep),
     uri: String(opt.uri),
-    root: path.resolve(String(opt.root || '')) + path.sep,
+    root: rootPath + path.sep,
     stream: opt.stream || null,
     parser: opt.parser || 'bson',
     numCursors: ~~opt.numCursors,
@@ -626,8 +584,14 @@ function backup(options) {
     options: typeof opt.options === 'object' ? opt.options : {},
     metadata: Boolean(opt.metadata)
   };
+  if (my.tar && !my.stream) {
+    my.stream = fs.createWriteStream(path.join(my.root, my.tar));
+  }
   if (my.stream) {
     my.tar = true; // override
+    documentStore = streamingDocumentStore(my.root, my.stream);
+  } else {
+    documentStore = fileSystemDocumentStore(my.root);
   }
   return wrapper(my);
 }

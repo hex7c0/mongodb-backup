@@ -1,6 +1,6 @@
 {
-  "version": "1.6.9",
-  "name": "mongodb-backup",
+  "version": "3.2.1",
+  "name": "mongodb-backup-4x",
   "description": "backup for mongodb",
   "keywords": [
     "mongodb",
@@ -16,7 +16,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hex7c0/mongodb-backup.git"
+    "url": "https://github.com/phoscur/mongodb-backup.git"
   },
   "bugs": {
     "url": "https://github.com/hex7c0/mongodb-backup/issues",
@@ -25,16 +25,17 @@
   "main": "index.min.js",
   "dependencies": {
     "bson": "1.0.4",
-    "fstream": "1.0.11",
+    "fs-extra": "^3.0.1",
+    "fstream": "^1.0.12",
     "graceful-fs": "4.1.11",
     "logger-request": "3.8.0",
-    "mongodb": "2.2.31",
-    "tar": "2.2.1"
+    "mongodb": "3.2.4",
+    "tar-stream": "^1.5.4"
   },
   "devDependencies": {
-    "grunt": "~1.0",
-    "grunt-contrib-uglify": "~3.3",
+    "grunt": "^1.0.4",
     "grunt-contrib-jshint": "~1.1",
+    "grunt-contrib-uglify": "~3.3",
     "grunt-endline": "~0.7",
     "grunt-safer-regex": "~0.1",
     "istanbul": "~0.4",
