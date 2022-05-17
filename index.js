@@ -513,7 +513,7 @@ function wrapper(my) {
   }
 
   require('mongodb').MongoClient.connect(my.uri, my.options, function (err, client) {
-    const db = client.db(my.dbName)
+    var db = client.db(my.dbName);
     logger('db open');
     if (err) {
       return callback(err);
