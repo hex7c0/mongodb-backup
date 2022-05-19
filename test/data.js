@@ -18,30 +18,44 @@ var fs = require('fs');
 var extname = require('path').extname;
 var MongoClient = require('mongodb').MongoClient;
 var BSON = require('bson');
-BSON = new BSON();
+// BSON = new BSON();
 var URI = process.env.URI;
+var ROOT = __dirname + '/dump';
+var DOCS = {};
 
 /*
  * test module
  */
 describe('data', function () {
 
-  var DOCS = {};
-  var ROOT = __dirname + '/dump';
 
   describe('db query', function () {
+    it('should return data from "logins" collection', function (done) {
+      MongoClient.connect(URI, (err, client) => {
+        if (err) return done(err);
 
-    it('should return data from "logins" collection', async function () {
-      const client = await MongoClient.connect(URI);
-      const db = await client.db('backup-tests');
-      const collection = await db.collection('logins');
-      const docs = await collection.find({});
+        var db = client.db('backup-tests');
 
-      //assert.equal(docs.length > 0, true, 'not empty collection');
-      for (var i = 0, ii = docs.length; i < ii; i++) {
-        DOCS[docs[i]._id] = docs[i];
-      }
-      client.close();
+        var collection = db.collection('logins');
+        if (err) return done(err);
+
+        collection.find({})
+          .toArray()
+          .then(docs => {
+            collection.estimatedDocumentCount()
+              .then(numberOfDocs => {
+                assert.equal(numberOfDocs > 0, true, 'not empty collection');
+                for (var i = 0, ii = docs.length; i < ii; i++) {
+                  DOCS[docs[i]._id] = docs[i];
+                }
+
+                client.close();
+                done();
+
+              })
+          })
+          .catch(done);
+      });
     });
   });
 });
@@ -53,6 +67,7 @@ describe('query', function () {
     backup({
       uri: URI,
       root: ROOT,
+      dbName: 'backup-tests',
       collections: ['logins'],
       parser: 'json',
       metadata: true,
@@ -101,6 +116,7 @@ describe('query', function () {
     backup({
       uri: URI,
       root: ROOT,
+      dbName: 'backup-tests',
       collections: ['logins'],
       parser: 'bson',
       metadata: true,
@@ -154,6 +170,7 @@ describe('collections', function () {
     backup({
       uri: URI,
       root: ROOT,
+      dbName: 'backup-tests',
       collections: ['logins'],
       parser: 'json',
       metadata: true,
@@ -200,6 +217,7 @@ describe('collections', function () {
     backup({
       uri: URI,
       root: ROOT,
+      dbName: 'backup-tests',
       collections: ['logins'],
       parser: 'bson',
       metadata: true,

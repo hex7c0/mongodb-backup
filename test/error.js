@@ -17,20 +17,20 @@ var assert = require('assert');
 /*
  * test module
  */
-describe('error', function() {
+describe('error', function () {
 
-  it('should return missing uri', function(done) {
+  it('should return missing uri', function (done) {
 
     var mex = /missing uri option/;
-    assert.throws(function() {
+    assert.throws(function () {
 
       backup();
     }, mex);
-    assert.throws(function() {
+    assert.throws(function () {
 
       backup({});
     }, mex);
-    assert.throws(function() {
+    assert.throws(function () {
 
       backup({
         root: 'ciao'
@@ -38,64 +38,68 @@ describe('error', function() {
     }, mex);
     done();
   });
-  it('should return parser root', function(done) {
+  it('should return parser root', function (done) {
 
     var mex = /missing parser option/;
-    assert.throws(function() {
+    assert.throws(function () {
 
       backup({
         uri: 'ciao',
         root: 'ciao',
-        parser: 'ciao'
+        parser: 'ciao',
+        dbName: 'ciao',
       });
     }, mex);
     done();
   });
-  it('should return wrong uri', function(done) {
+  it('should return wrong uri', function (done) {
 
-    var mex = /invalid schema, expected mongodb/;
-    assert.throws(function() {
-
+    var mex = /Invalid scheme, expected connection string to start with "mongodb:"/;
+    assert.rejects(function () {
       backup({
         uri: 'ciao',
-        root: 'ciao'
+        root: 'ciao',
+        dbName: 'ciao',
       });
     }, mex);
     done();
   });
 
-  describe('root', function() {
+  describe('root', function () {
 
-    it('should return missing root', function(done) {
+    it('should return missing root', function (done) {
 
       var mex = /missing root option/;
-      assert.throws(function() {
+      assert.throws(function () {
 
         backup({
-          uri: 'ciao'
+          uri: 'ciao',
+          dbName: 'ciao',
         });
       }, mex);
       done();
     });
-    it('should return different error message (exists)', function(done) {
+    it('should return different error message (exists)', function (done) {
 
-      var mex = /invalid schema, expected mongodb/;
-      assert.throws(function() {
+      var mex = /invalid scheme, expected mongodb/;
+      assert.rejects(function () {
 
         backup({
           uri: 'ciao',
+          dbName: 'ciao',
           root: __dirname
         });
       }, mex);
       done();
     });
-    it('should return different error message (not file)', function(done) {
+    it('should return different error message (not file)', function (done) {
 
       var mex = /root option is not a directory/;
-      assert.throws(function() {
+      assert.throws(function () {
 
         backup({
           uri: 'ciao',
+          dbName: 'ciao',
           root: __dirname + '/error.js'
         });
       }, mex);

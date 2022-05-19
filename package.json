@@ -1,5 +1,5 @@
 {
-  "version": "2.0.2",
+  "version": "2.0.3",
   "name": "mongodb-backup",
   "description": "backup for mongodb",
   "keywords": [
@@ -22,9 +22,9 @@
     "url": "https://github.com/hex7c0/mongodb-backup/issues",
     "email": "hex7c0@gmail.com"
   },
-  "main": "index.min.js",
+  "main": "index.js",
   "dependencies": {
-    "bson": "1.0.4",
+    "bson": "^4.6.3",
     "fstream": "1.0.11",
     "graceful-fs": "4.1.11",
     "logger-request": "3.8.0",

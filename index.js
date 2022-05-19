@@ -44,9 +44,7 @@ function error(err) {
  * @param {Function} next - callback
  */
 function writeMetadata(collection, metadata, next) {
-
   return collection.indexes(function (err, indexes) {
-
     if (err) {
       return next(err);
     }
@@ -182,7 +180,6 @@ function toBsonAsync(doc, collectionPath) {
  * @param {Function} next - callback
  */
 function allCollections(db, name, query, metadata, parser, next) {
-
   return db.collections(function (err, collections) {
 
     if (err) {
@@ -196,12 +193,12 @@ function allCollections(db, name, query, metadata, parser, next) {
 
     collections.forEach(function (collection) {
 
-      if (systemRegex.test(collection.collectionName) === true) {
+      if (systemRegex.test(collection.name) === true) {
         return last === ++index ? next(null) : null;
       }
 
-      logger('select collection ' + collection.collectionName);
-      makeDir(name + collection.collectionName + path.sep, function (err, name) {
+      logger('select collection ' + collection.name);
+      makeDir(name + collection.name + path.sep, function (err, name) {
 
         if (err) {
           return last === ++index ? next(err) : error(err);
@@ -209,7 +206,7 @@ function allCollections(db, name, query, metadata, parser, next) {
 
         meta(collection, metadata, function () {
 
-          var stream = collection.find(query).snapshot(true).stream();
+          var stream = collection.find(query).stream();
 
           stream.once('end', function () {
 
@@ -250,12 +247,12 @@ function allCollectionsScan(db, name, numCursors, metadata, parser, next) {
 
     collections.forEach(function (collection) {
 
-      if (systemRegex.test(collection.collectionName) === true) {
+      if (systemRegex.test(collection.name) === true) {
         return last === ++index ? next(null) : null;
       }
 
-      logger('select collection scan ' + collection.collectionName);
-      makeDir(name + collection.collectionName + path.sep, function (err, name) {
+      logger('select collection scan ' + collection.name);
+      makeDir(name + collection.name + path.sep, function (err, name) {
 
         if (err) {
           return last === ++index ? next(err) : error(err);
@@ -296,6 +293,20 @@ function allCollectionsScan(db, name, numCursors, metadata, parser, next) {
   });
 }
 
+function collectionExists(db, name, cb) {
+  db.listCollections({}, { strict: true }).toArray(function (err, collections) {
+    if (err) return cb(err);
+
+    var collection = collections.find(c => c.name === name);
+
+    if (!collection) {
+      return cb(new Error('Collection ' + name + ' does not exist'));
+    }
+
+    cb(null, db.collection(name))
+  });
+}
+
 /**
  * get data from some collections
  * 
@@ -309,17 +320,13 @@ function allCollectionsScan(db, name, numCursors, metadata, parser, next) {
  * @param {Array} collections - selected collections
  */
 function someCollections(db, name, query, metadata, parser, next, collections) {
-
   var last = ~~collections.length, index = 0;
   if (last === 0) {
     return next(null);
   }
 
-  collections.forEach(function (collection) {
-
-    db.collection(collection, {
-      strict: true
-    }, function (err, collection) {
+  collections.forEach(function (c) {
+    collectionExists(db, c, function (err, collection) {
 
       if (err) { // returns an error if the collection does not exist
         return last === ++index ? next(err) : error(err);
@@ -334,7 +341,7 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
 
         meta(collection, metadata, function () {
 
-          var stream = collection.find(query).snapshot(true).stream();
+          var stream = collection.find(query).stream();
 
           stream.once('end', function () {
 
@@ -371,11 +378,9 @@ function someCollectionsScan(db, name, numCursors, metadata, parser, next,
 
   collections.forEach(function (collection) {
 
-    db.collection(collection, {
-      strict: true
-    }, function (err, collection) {
+    collectionExists(db, collection, function (err, collection) {
 
-      if (err) { // returns an error if the collection does not exist
+      if (err) { // returns an error if the collection does not xist
         return last === ++index ? next(err) : error(err);
       }
 
@@ -436,7 +441,6 @@ function wrapper(my) {
     switch (my.parser.toLowerCase()) {
       case 'bson':
         BSON = require('bson');
-        BSON = new BSON();
         parser = toBsonAsync;
         break;
       case 'json':
@@ -461,8 +465,7 @@ function wrapper(my) {
   }
 
   if (my.logger === null) {
-    logger = function () {
-
+    logger = function (msg) {
       return;
     };
   } else {
@@ -521,21 +524,17 @@ function wrapper(my) {
 
     var root = my.tar === null ? my.root : my.dir;
     makeDir(root, function (err, name) {
-
       if (err) {
         return callback(err);
       }
-
       makeDir(name + db.databaseName + path.sep, function (err, name) {
-
         function go() {
-
           // waiting for `db.fsyncLock()` on node driver
           return discriminator(db, name, my.query, metadata, parser,
             function (err) {
-
               logger('db close');
               client.close();
+
               if (err) {
                 return callback(err);
               }
@@ -617,7 +616,7 @@ function backup(options) {
   var my = {
     dir: path.join(__dirname, 'dump', path.sep),
     uri: String(opt.uri),
-    dbName: String(opt.dbname),
+    dbName: String(opt.dbName),
     root: path.resolve(String(opt.root || '')) + path.sep,
     stream: opt.stream || null,
     parser: opt.parser || 'bson',
