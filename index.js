@@ -623,7 +623,8 @@ function wrapper(my) {
                     [root + db.databaseName])
                     .on('error', callback)
                     .on('end', () => {
-                      rmDir(root, callback);
+                      rmDir(root);
+                      callback(null);
                     });
 
                   packer.pipe(dest);
