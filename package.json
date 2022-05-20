@@ -29,7 +29,7 @@
     "graceful-fs": "4.1.11",
     "logger-request": "3.8.0",
     "mongodb": "^4.6.0",
-    "tar": "2.2.1"
+    "tar": "6.1.11"
   },
   "devDependencies": {
     "grunt": "~1.0",

@@ -104,7 +104,7 @@ function rmDir(pathname, next) {
 
   fs.readdirSync(pathname).forEach(function (first) { // database
 
-    var database = pathname + first;
+    var database = pathname + path.sep + first;
     if (fs.statSync(database).isDirectory() === false) {
       return next(Error('path is not a Directory'));
     }
@@ -197,8 +197,8 @@ function allCollections(db, name, query, metadata, parser, next) {
         return last === ++index ? next(null) : null;
       }
 
-      logger('select collection ' + collection.name);
-      makeDir(name + collection.name + path.sep, function (err, name) {
+      logger('select collection ' + collection.collectionName);
+      makeDir(name + collection.collectionName + path.sep, function (err, name) {
 
         if (err) {
           return last === ++index ? next(err) : error(err);
@@ -356,6 +356,62 @@ function someCollections(db, name, query, metadata, parser, next, collections) {
   });
 }
 
+
+/**
+ * get data from some collections
+ * 
+ * @function filterCollections
+ * @param {Object} db - database
+ * @param {String} name - path of dir
+ * @param {Object} query - find query
+ * @param {String} metadata - path of metadata
+ * @param {Function} parser - data parser
+ * @param {Function} next - callback
+ * @param {Array} skipCollections - excluded collections
+ */
+function filterCollections(db, name, query, metadata, parser, next, skipCollections) {
+  return db.collections(function (err, collections) {
+
+    if (err) {
+      return next(err);
+    }
+
+    var last = Math.max(~~collections.length - skipCollections.length, 0);
+    var index = 0;
+    if (last === 0) { // empty set
+      return next(err);
+    }
+
+    collections
+      .filter(c => !skipCollections.find(cc => cc === c.collectionName))
+      .forEach(function (collection) {
+
+        if (systemRegex.test(collection.name) === true) {
+          return last === ++index ? next(null) : null;
+        }
+
+        logger('select collection ' + collection.collectionName);
+        makeDir(name + collection.collectionName + path.sep, function (err, name) {
+          if (err) {
+            return last === ++index ? next(err) : error(err);
+          }
+
+          meta(collection, metadata, function () {
+
+            var stream = collection.find(query).stream();
+
+            stream.once('end', function () {
+              return last === ++index ? next(null) : null;
+            }).on('data', function (doc) {
+
+              parser(doc, name);
+            });
+          });
+        });
+      });
+  });
+}
+
 /**
  * get data from some collections without query (parallelCollectionScan)
  * 
@@ -453,7 +509,9 @@ function wrapper(my) {
   }
 
   var discriminator = allCollections;
-  if (my.collections !== null) {
+  if (my.skipCollections !== null) {
+    discriminator = filterCollections;
+  } else if (my.collections !== null) {
     discriminator = someCollections;
     if (my.numCursors) {
       discriminator = someCollectionsScan;
@@ -535,6 +593,7 @@ function wrapper(my) {
               logger('db close');
               client.close();
 
+              console.log('finished gathering data')
               if (err) {
                 return callback(err);
               }
@@ -546,6 +605,7 @@ function wrapper(my) {
                     error(err);
                   }
 
+                  console.log('making tar')
                   var dest;
                   if (my.stream) { // user stream
                     logger('send tar file to stream');
@@ -555,23 +615,24 @@ function wrapper(my) {
                     dest = fs.createWriteStream(name + my.tar);
                   }
 
-                  var packer = require('tar').Pack().on('error', callback).on(
-                    'end', function () {
+                  var tar = require('tar');
 
-                      rmDir(root);
-                      callback(null);
+                  const packer = tar.create({
+                    gzip: my.tar.indexOf('.tar.gz') !== -1,
+                  },
+                    [root + db.databaseName])
+                    .on('error', callback)
+                    .on('end', () => {
+                      rmDir(root, callback);
                     });
 
-                  require('fstream').Reader({
-                    path: root + db.databaseName,
-                    type: 'Directory'
-                  }).on('error', callback).pipe(packer).pipe(dest);
+                  packer.pipe(dest);
                 });
 
               } else {
                 callback(null);
               }
-            }, my.collections);
+            }, my.collections || my.skipCollections);
         }
 
         if (err) {
@@ -622,6 +683,7 @@ function backup(options) {
     parser: opt.parser || 'bson',
     numCursors: ~~opt.numCursors,
     collections: Array.isArray(opt.collections) ? opt.collections : null,
+    skipCollections: Array.isArray(opt.skipCollections) ? opt.skipCollections : null,
     callback: typeof (opt.callback) == 'function' ? opt.callback : null,
     tar: typeof opt.tar === 'string' ? opt.tar : null,
     query: typeof opt.query === 'object' ? opt.query : {},
