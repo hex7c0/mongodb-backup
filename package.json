@@ -1,6 +1,6 @@
 {
-  "version": "2.0.3",
-  "name": "mongodb-backup",
+  "version": "2.0.4",
+  "name": "@evops/mongodb-backup",
   "description": "backup for mongodb",
   "keywords": [
     "mongodb",
@@ -8,7 +8,7 @@
     "dump"
   ],
   "preferGlobal": false,
-  "homepage": "https://github.com/hex7c0/mongodb-backup",
+  "homepage": "https://github.com/eu-evops/mongodb-backup",
   "author": {
     "name": "hex7c0",
     "email": "hex7c0@gmail.com",
@@ -16,10 +16,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hex7c0/mongodb-backup.git"
+    "url": "https://github.com/eu-evops/mongodb-backup.git"
   },
   "bugs": {
-    "url": "https://github.com/hex7c0/mongodb-backup/issues",
+    "url": "https://github.com/eu-evops/mongodb-backup/issues",
     "email": "hex7c0@gmail.com"
   },
   "main": "index.js",
