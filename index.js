@@ -593,7 +593,6 @@ function wrapper(my) {
               logger('db close');
               client.close();
 
-              console.log('finished gathering data')
               if (err) {
                 return callback(err);
               }
@@ -605,7 +604,6 @@ function wrapper(my) {
                     error(err);
                   }
 
-                  console.log('making tar')
                   var dest;
                   if (my.stream) { // user stream
                     logger('send tar file to stream');
