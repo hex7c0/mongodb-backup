@@ -18,18 +18,19 @@ var URI = process.env.URI;
 /*
  * test module
  */
-describe('parser', function() {
+describe('parser', function () {
 
   var ROOT = __dirname + '/dump';
 
-  it('should check custom parser', function(done) {
+  it('should check custom parser', function (done) {
 
     var c = 0;
     backup({
       uri: URI,
+      dbName: 'backup-tests',
       root: ROOT,
-      collections: [ 'logins' ],
-      parser: function(docs, name, next) {
+      collections: ['logins'],
+      parser: function (docs, name, next) {
 
         c++;
         assert.equal(Array.isArray(docs), false);
@@ -37,7 +38,7 @@ describe('parser', function() {
         assert.equal(typeof next, 'undefined');
         // next();
       },
-      callback: function(err) {
+      callback: function (err) {
 
         assert.ifError(err);
         assert.equal(c > 0, true);

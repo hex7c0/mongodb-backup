@@ -16,12 +16,11 @@ var assert = require('assert');
 var fs = require('fs');
 var extname = require('path').extname;
 var mongodb = require('mongodb');
-var bson = require('bson');
+var BSON = require('bson');
 
-var client = mongodb.MongoClient;
-var BSON = new bson.BSON();
+var MongoClient = mongodb.MongoClient;
 var MLong = mongodb.Long;
-var BLong = bson.Long;
+var BLong = BSON.Long;
 var Uri = process.env.URI;
 var Root = __dirname + '/dump';
 var Collection = 'test_10';
@@ -29,13 +28,13 @@ var Collection = 'test_10';
 /*
  * test module
  */
-describe('issue10', function() {
+describe('issue10', function () {
 
   var NInt64, SInt64, NLong, SLong;
 
-  describe('create new collection', function() {
+  describe('create new collection', function () {
 
-    it('should create long number', function(done) {
+    it('should create long number', function (done) {
 
       var long1 = MLong.fromNumber(100);
       var long2 = BLong.fromNumber(100);
@@ -51,18 +50,19 @@ describe('issue10', function() {
 
       done();
     });
-    it('should create "' + Collection + '" collection', function(done) {
+    it('should create "' + Collection + '" collection', function (done) {
 
-      client.connect(Uri, function(err, db) {
+      MongoClient.connect(Uri, function (err, client) {
+        var db = client.db('test');
 
         assert.ifError(err);
-        db.createCollection(Collection, function(err, collection) {
+        db.createCollection(Collection, function (err, collection) {
 
           assert.ifError(err);
-          collection.remove({}, function(err, result) { // remove previous data
+          collection.deleteMany({}, function (err, result) { // remove previous data
 
             assert.ifError(err);
-            collection.insert([ {
+            collection.insertMany([{
               _id: 'nint64',
               d: NInt64,
               t: 'foo1'
@@ -78,12 +78,12 @@ describe('issue10', function() {
               _id: 'slong',
               d: SLong,
               t: 'foo4'
-            } ], function(err, result) {
-
+            }], function (err, result) {
+              console.log(result);
               assert.ifError(err);
-              assert.equal(result.result.ok, 1);
-              assert.equal(result.result.n, 4);
-              db.close();
+              assert.equal(result.acknowledged, true);
+              assert.equal(result.insertedCount, 4);
+              client.close();
               done();
             });
           });
@@ -92,15 +92,16 @@ describe('issue10', function() {
     });
   });
 
-  describe('backup', function() {
+  describe('backup', function () {
 
-    it('should build 1 directory and 4 files', function(done) {
+    it('should build 1 directory and 4 files', function (done) {
 
       backup({
         uri: Uri,
+        dbName: 'backup-tests',
         root: Root,
-        collections: [ Collection ],
-        callback: function(err) {
+        collections: [Collection],
+        callback: function (err) {
 
           assert.ifError(err);
           setTimeout(done, 500);
@@ -109,12 +110,12 @@ describe('issue10', function() {
     });
   });
 
-  describe('deserialize', function() {
+  describe('deserialize', function () {
 
     var database, collection;
     var nint64_file, nlong_file, sint64_file, slong_file;
 
-    it('should find 2 files', function(done) {
+    it('should find 2 files', function (done) {
 
       var first = fs.readdirSync(Root);
       assert.equal(first.length, 1, 'database');
@@ -136,7 +137,7 @@ describe('issue10', function() {
       sint64_file = collection + '/' + docs[2];
       slong_file = collection + '/' + docs[3];
 
-      docs.forEach(function(file) {
+      docs.forEach(function (file) {
 
         var p = collection + '/' + file;
         assert.equal(fs.statSync(p).isFile(), true);
@@ -145,7 +146,7 @@ describe('issue10', function() {
 
       done();
     });
-    it('should deserialize nint64 file', function(done) {
+    it('should deserialize nint64 file', function (done) {
 
       var data = BSON.deserialize(fs.readFileSync(nint64_file));
       assert.strictEqual(data._id, 'nint64');
@@ -153,7 +154,7 @@ describe('issue10', function() {
       assert.strictEqual(data.t, 'foo1');
       fs.unlink(nint64_file, done);
     });
-    it('should deserialize sint64 file', function(done) {
+    it('should deserialize sint64 file', function (done) {
 
       var data = BSON.deserialize(fs.readFileSync(sint64_file));
       assert.strictEqual(data._id, 'sint64');
@@ -161,7 +162,7 @@ describe('issue10', function() {
       assert.strictEqual(data.t, 'foo2');
       fs.unlink(sint64_file, done);
     });
-    it('should deserialize nlong file', function(done) {
+    it('should deserialize nlong file', function (done) {
 
       var data = BSON.deserialize(fs.readFileSync(nlong_file));
       assert.strictEqual(data._id, 'nlong');
@@ -169,7 +170,7 @@ describe('issue10', function() {
       assert.strictEqual(data.t, 'foo3');
       fs.unlink(nlong_file, done);
     });
-    it('should deserialize slong file', function(done) {
+    it('should deserialize slong file', function (done) {
 
       var data = BSON.deserialize(fs.readFileSync(slong_file));
       assert.strictEqual(data._id, 'slong');
@@ -177,7 +178,7 @@ describe('issue10', function() {
       assert.strictEqual(data.t, 'foo4');
       fs.unlink(slong_file, done);
     });
-    it('should remove dirs', function(done) {
+    it('should remove dirs', function (done) {
 
       fs.rmdirSync(collection);
       fs.rmdirSync(database);

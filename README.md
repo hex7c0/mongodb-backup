@@ -44,6 +44,7 @@ backup({
 
  - `uri` - **String** [URI](http://mongodb.github.io/node-mongodb-native/2.0/tutorials/urls/) for MongoDb connection *(default "required")*
  - `root`- **String** Path where save data *(default "required")*
+ - `dbName`- **String** Name of the database *(default "required")*
  - `[parser]` - **String | Function** Data parser (bson, json) or custom *(default "bson")*
  - `[collections]` - **Array** Select which collections save *(default "disabled")*
  - `[callback]` - **Function** Callback when done *(default "disabled")*

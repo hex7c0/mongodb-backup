@@ -1,6 +1,6 @@
 {
-  "version": "1.6.9",
-  "name": "mongodb-backup",
+  "version": "2.0.6",
+  "name": "@evops/mongodb-backup",
   "description": "backup for mongodb",
   "keywords": [
     "mongodb",
@@ -8,7 +8,7 @@
     "dump"
   ],
   "preferGlobal": false,
-  "homepage": "https://github.com/hex7c0/mongodb-backup",
+  "homepage": "https://github.com/eu-evops/mongodb-backup",
   "author": {
     "name": "hex7c0",
     "email": "hex7c0@gmail.com",
@@ -16,25 +16,25 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hex7c0/mongodb-backup.git"
+    "url": "https://github.com/eu-evops/mongodb-backup.git"
   },
   "bugs": {
-    "url": "https://github.com/hex7c0/mongodb-backup/issues",
+    "url": "https://github.com/eu-evops/mongodb-backup/issues",
     "email": "hex7c0@gmail.com"
   },
-  "main": "index.min.js",
+  "main": "index.js",
   "dependencies": {
-    "bson": "1.0.4",
+    "bson": "^4.6.3",
     "fstream": "1.0.11",
     "graceful-fs": "4.1.11",
     "logger-request": "3.8.0",
-    "mongodb": "2.2.31",
-    "tar": "2.2.1"
+    "mongodb": "^4.6.0",
+    "tar": "6.1.11"
   },
   "devDependencies": {
     "grunt": "~1.0",
-    "grunt-contrib-uglify": "~3.3",
     "grunt-contrib-jshint": "~1.1",
+    "grunt-contrib-uglify": "~3.3",
     "grunt-endline": "~0.7",
     "grunt-safer-regex": "~0.1",
     "istanbul": "~0.4",
@@ -47,7 +47,6 @@
   },
   "scripts": {
     "prepare": "npm prune",
-    "prepublishOnly": "grunt",
     "test": "mocha --bail --check-leaks --globals Promise --timeout 10000",
     "test-cov": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- --timeout 10000"
   },

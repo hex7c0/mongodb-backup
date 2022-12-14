@@ -21,50 +21,51 @@ var URI = process.env.URI;
 /*
  * test module
  */
-describe('stream', function() {
+describe('stream', function () {
 
   var ROOT = __dirname + '/dump';
 
-  describe('tar', function() {
+  describe('tar', function () {
 
     var app;
     var path0 = ROOT + '/from_web.tar';
     var path1 = ROOT + '/from_file.tar';
 
-    describe('web', function() {
+    describe('web', function () {
 
-      it('should check that tar file not exist before test', function(done) {
+      it('should check that tar file not exist before test', function (done) {
 
         assert.equal(fs.existsSync(path0), false);
         done();
       });
-      it('should create a web application', function(done) {
+      it('should create a web application', function (done) {
 
-        app = http.createServer(function(req, res) {
+        app = http.createServer(function (req, res) {
 
           res.writeHead(200, {
             'Content-Type': 'application/x-tar'
           });
 
           backup({
-            collections: [ 'logins', 'auths', 'wrong_name' ],
+            collections: ['logins', 'auths', 'wrong_name'],
             uri: URI,
+            dbName: 'backup-tests',
             stream: res
           });
 
         });
         done();
       });
-      it('should send a request to web and write a tar file', function(done) {
+      it('should send a request to web and write a tar file', function (done) {
 
         request(app).get('/').expect('Content-Type', /tar/).expect(200).end(
-          function(err, res) {
+          function (err, res) {
 
             assert.ifError(err);
             fs.writeFile(path0, res.text, done);
           });
       });
-      it('should check that buffer dir not exist', function(done) {
+      it('should check that buffer dir not exist', function (done) {
 
         var paths = __dirname + '/../dump';
         assert.equal(fs.existsSync(paths), true);
@@ -73,21 +74,22 @@ describe('stream', function() {
       });
     });
 
-    describe('file', function() {
+    describe('file', function () {
 
-      it('should check that tar file not exist before test', function(done) {
+      it('should check that tar file not exist before test', function (done) {
 
         assert.equal(fs.existsSync(path1), false);
         done();
       });
-      it('should make a tar file', function(done) {
+      it('should make a tar file', function (done) {
 
         backup({
-          collections: [ 'logins', 'auths', 'wrong_name' ],
+          collections: ['logins', 'auths', 'wrong_name'],
           uri: URI,
           root: ROOT,
+          dbName: 'backup-tests',
           tar: 'from_file.tar',
-          callback: function(err) {
+          callback: function (err) {
 
             assert.ifError(err);
             assert.equal(fs.existsSync(path1), true);
@@ -95,7 +97,7 @@ describe('stream', function() {
           }
         });
       });
-      it('should check that buffer dir not exist', function(done) {
+      it('should check that buffer dir not exist', function (done) {
 
         var paths = __dirname + '/../dump';
         assert.equal(fs.existsSync(paths), true);
@@ -104,9 +106,9 @@ describe('stream', function() {
       });
     });
 
-    describe('end', function() {
+    describe('end', function () {
 
-      it('should delete this 2 files', function(done) {
+      it('should delete this 2 files', function (done) {
 
         fs.unlinkSync(path0);
         fs.unlinkSync(path1);
